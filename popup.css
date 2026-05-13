@@ -1,0 +1,110 @@
+:root {
+  color-scheme: light;
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --text: #151922;
+  --muted: #626b7a;
+  --line: #d8dde7;
+  --focus: rgba(20, 99, 193, 0.22);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 288px;
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button {
+  font: inherit;
+}
+
+.panel {
+  padding: 14px;
+}
+
+.stations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.station {
+  display: grid;
+  min-height: 104px;
+  padding: 12px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  place-items: center;
+  gap: 8px;
+}
+
+.station:hover {
+  border-color: var(--station-color);
+}
+
+.station:focus-visible,
+.stop:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.station.is-active {
+  border-color: var(--station-color);
+  box-shadow: inset 0 0 0 2px var(--station-color);
+}
+
+.mark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  place-items: center;
+  background: var(--station-color);
+  color: var(--station-text, #fff);
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.name {
+  max-width: 100%;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.stop {
+  width: 100%;
+  min-height: 38px;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: #263141;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.stop:disabled {
+  color: #8a93a3;
+  cursor: default;
+}
+
+.status {
+  min-height: 18px;
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+}
