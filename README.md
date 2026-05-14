@@ -36,6 +36,7 @@ Browser extension to play popular French live radio streams from the toolbar.
 - BFM Business
 
 Each radio tile starts or stops the live audio stream. The `Site` link opens the station website in a new tab.
+Stations are sorted locally by usage: the radios you play most appear first, with ties resolved by most recent use and then the ACPM ranking order.
 
 ## Install Temporarily
 
@@ -67,5 +68,6 @@ The generated ZIP can be used for browser extension installation workflows that 
 - This extension uses direct audio streams rather than opening radio website player pages.
 - The radio list follows the top 30 ACPM Radio Brands France ranking from April 2026.
 - `ici` and `Outre-Mer la 1ère` are ACPM brand aggregates, so the extension uses representative live streams for those brands.
+- Local usage sorting is stored in the browser with `storage.local`.
 - The toolbar badge shows `ON` while a station is playing.
 - The `Stop` button stops the current stream.

@@ -3,7 +3,9 @@
   "name": "Radio Stream",
   "version": "0.1.1",
   "description": "Play French radio live audio streams from the extension.",
-  "permissions": [],
+  "permissions": [
+    "storage"
+  ],
   "icons": {
     "16": "assets/icon-16.png",
     "32": "assets/icon-32.png",

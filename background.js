@@ -245,10 +245,12 @@ const STATIONS = [
 ];
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
+const USAGE_KEY = 'stationUsage';
 let audio = null;
 let currentStationId = null;
 let status = 'stopped';
 let playbackToken = 0;
+let countedPlaybackToken = 0;
 
 function findStation(stationId) {
   return STATIONS.find((station) => station.id === stationId);
@@ -259,12 +261,72 @@ function setBadge(text, color) {
   api.action.setBadgeBackgroundColor({ color: color });
 }
 
+function storageGet(defaults) {
+  if (typeof browser !== 'undefined') {
+    return browser.storage.local.get(defaults);
+  }
+
+  return new Promise((resolve) => {
+    chrome.storage.local.get(defaults, resolve);
+  });
+}
+
+function storageSet(values) {
+  if (typeof browser !== 'undefined') {
+    return browser.storage.local.set(values);
+  }
+
+  return new Promise((resolve) => {
+    chrome.storage.local.set(values, resolve);
+  });
+}
+
+function loadUsage() {
+  return storageGet({ [USAGE_KEY]: {} }).then((stored) => stored[USAGE_KEY] || {});
+}
+
+function stationRank(station) {
+  return STATIONS.findIndex((item) => item.id === station.id);
+}
+
+function sortStations(usage) {
+  return STATIONS.slice().sort((first, second) => {
+    const firstUsage = usage[first.id] || {};
+    const secondUsage = usage[second.id] || {};
+    const firstCount = firstUsage.count || 0;
+    const secondCount = secondUsage.count || 0;
+
+    if (firstCount !== secondCount) {
+      return secondCount - firstCount;
+    }
+
+    if ((firstUsage.lastPlayedAt || 0) !== (secondUsage.lastPlayedAt || 0)) {
+      return (secondUsage.lastPlayedAt || 0) - (firstUsage.lastPlayedAt || 0);
+    }
+
+    return stationRank(first) - stationRank(second);
+  });
+}
+
+function recordUsage(stationId) {
+  return loadUsage().then((usage) => {
+    const previous = usage[stationId] || {};
+
+    usage[stationId] = {
+      count: (previous.count || 0) + 1,
+      lastPlayedAt: Date.now()
+    };
+
+    return storageSet({ [USAGE_KEY]: usage });
+  });
+}
+
 function getState() {
-  return {
+  return loadUsage().then((usage) => ({
     status: status,
     currentStationId: currentStationId,
-    stations: STATIONS
-  };
+    stations: sortStations(usage)
+  }));
 }
 
 function stopStream() {
@@ -339,6 +401,10 @@ function playStation(stationId) {
     status = 'playing';
     currentStationId = station.id;
     setBadge('ON', station.color);
+    if (countedPlaybackToken !== token) {
+      countedPlaybackToken = token;
+      return recordUsage(station.id).then(getState);
+    }
     return getState();
   });
 }
@@ -353,12 +419,12 @@ api.runtime.onMessage.addListener((message) => {
   }
 
   if (message.type === 'GET_STATE') {
-    return Promise.resolve(getState());
+    return getState();
   }
 
   if (message.type === 'STOP') {
     stopStream();
-    return Promise.resolve(getState());
+    return getState();
   }
 
   if (message.type === 'PLAY_STATION') {
@@ -370,10 +436,10 @@ api.runtime.onMessage.addListener((message) => {
 
       status = 'error';
       setBadge('ERR', '#b3261e');
-      return {
-        ...getState(),
+      return getState().then((state) => ({
+        ...state,
         error: error.message
-      };
+      }));
     });
   }
 
