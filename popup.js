@@ -3,17 +3,6 @@ const stationsNode = document.getElementById('stations');
 const stopButton = document.getElementById('stop');
 const statusNode = document.getElementById('status');
 
-const MARKS = {
-  rtl: 'RTL',
-  europe1: 'E1',
-  franceinter: 'Inter',
-  franceinfo: 'Info'
-};
-
-const TEXT_COLORS = {
-  franceinfo: '#151922'
-};
-
 function sendMessage(message) {
   if (typeof browser !== 'undefined') {
     return browser.runtime.sendMessage(message);
@@ -68,13 +57,13 @@ function createStationCard(station) {
   button.type = 'button';
   button.dataset.stationId = station.id;
 
-  if (TEXT_COLORS[station.id]) {
-    card.style.setProperty('--station-text', TEXT_COLORS[station.id]);
+  if (station.textColor) {
+    card.style.setProperty('--station-text', station.textColor);
   }
 
   const mark = document.createElement('span');
   mark.className = 'mark';
-  mark.textContent = MARKS[station.id] || station.name;
+  mark.textContent = station.mark || station.name;
   mark.setAttribute('aria-hidden', 'true');
 
   const name = document.createElement('span');

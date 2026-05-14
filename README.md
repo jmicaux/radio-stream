@@ -1,13 +1,39 @@
 # Radio Stream
 
-Browser extension to play a small set of French live radio streams from the toolbar.
+Browser extension to play popular French live radio streams from the toolbar.
 
 ## Radios
 
-- RTL
-- Europe 1
 - France Inter
+- RMC
 - franceinfo
+- RTL
+- NRJ
+- Nostalgie
+- FIP
+- Europe 1
+- Skyrock
+- ici
+- Chérie FM
+- RFM
+- France Culture
+- Rire et Chansons
+- RTL2
+- Radio Classique
+- Europe 2
+- Fun Radio
+- Radio FG
+- France Musique
+- Sud Radio
+- Oui FM
+- Radio Nova
+- Chante France
+- BFM Radio
+- Jazz Radio
+- Générations
+- Outre-Mer la 1ère
+- RCI Guadeloupe
+- BFM Business
 
 Each radio tile starts or stops the live audio stream. The `Site` link opens the station website in a new tab.
 
@@ -39,5 +65,7 @@ The generated ZIP can be used for browser extension installation workflows that 
 ## Notes
 
 - This extension uses direct audio streams rather than opening radio website player pages.
+- The radio list follows the top 30 ACPM Radio Brands France ranking from April 2026.
+- `ici` and `Outre-Mer la 1ère` are ACPM brand aggregates, so the extension uses representative live streams for those brands.
 - The toolbar badge shows `ON` while a station is playing.
 - The `Stop` button stops the current stream.
