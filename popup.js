@@ -19,6 +19,7 @@ function setStatus(message) {
 
 function renderState(state) {
   const isActive = state.status === 'playing' || state.status === 'loading';
+  const station = state.stations.find((item) => item.id === state.currentStationId);
 
   document.querySelectorAll('.station').forEach((button) => {
     const active = button.dataset.stationId === state.currentStationId && isActive;
@@ -27,14 +28,14 @@ function renderState(state) {
   });
 
   stopButton.disabled = !isActive;
+  stopButton.textContent = station && isActive ? 'Stop - ' + station.name : 'Stop';
 
   if (state.status === 'loading') {
-    setStatus('Connexion...');
+    setStatus(station ? 'Connexion à ' + station.name + '...' : 'Connexion...');
     return;
   }
 
   if (state.status === 'playing') {
-    const station = state.stations.find((item) => item.id === state.currentStationId);
     setStatus(station ? station.name : '');
     return;
   }

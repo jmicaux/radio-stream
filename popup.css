@@ -34,6 +34,7 @@ button {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 9px;
+  margin-top: 10px;
 }
 
 .station-card {
@@ -109,7 +110,6 @@ button {
 .stop {
   width: 100%;
   min-height: 38px;
-  margin-top: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #ffffff;
@@ -125,7 +125,7 @@ button {
 
 .status {
   min-height: 18px;
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   color: var(--muted);
   font-size: 12px;
   text-align: center;
