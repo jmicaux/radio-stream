@@ -3,24 +3,28 @@ const STATIONS = [
     id: 'rtl',
     name: 'RTL',
     streamUrl: 'https://streaming.radio.rtl.fr/rtl-1-44-128',
+    siteUrl: 'https://www.rtl.fr/',
     color: '#d71920'
   },
   {
     id: 'europe1',
     name: 'Europe 1',
     streamUrl: 'https://stream.europe1.fr/europe1.mp3',
+    siteUrl: 'https://www.europe1.fr/',
     color: '#103f8f'
   },
   {
     id: 'franceinter',
     name: 'France Inter',
     streamUrl: 'https://direct.franceinter.fr/live/franceinter-midfi.mp3',
+    siteUrl: 'https://www.radiofrance.fr/franceinter',
     color: '#e31b23'
   },
   {
     id: 'franceinfo',
     name: 'franceinfo',
     streamUrl: 'https://direct.franceinfo.fr/live/franceinfo-midfi.mp3',
+    siteUrl: 'https://www.radiofrance.fr/franceinfo',
     color: '#f6c400'
   }
 ];

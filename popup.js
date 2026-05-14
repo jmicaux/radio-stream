@@ -58,15 +58,18 @@ function renderState(state) {
   setStatus('');
 }
 
-function createStationButton(station) {
+function createStationCard(station) {
+  const card = document.createElement('div');
+  card.className = 'station-card';
+  card.style.setProperty('--station-color', station.color);
+
   const button = document.createElement('button');
   button.className = 'station';
   button.type = 'button';
   button.dataset.stationId = station.id;
-  button.style.setProperty('--station-color', station.color);
 
   if (TEXT_COLORS[station.id]) {
-    button.style.setProperty('--station-text', TEXT_COLORS[station.id]);
+    card.style.setProperty('--station-text', TEXT_COLORS[station.id]);
   }
 
   const mark = document.createElement('span');
@@ -87,13 +90,21 @@ function createStationButton(station) {
     }).then(renderState);
   });
 
-  return button;
+  const link = document.createElement('a');
+  link.className = 'site-link';
+  link.href = station.siteUrl;
+  link.target = '_blank';
+  link.rel = 'noreferrer noopener';
+  link.textContent = 'Site';
+
+  card.append(button, link);
+  return card;
 }
 
 function renderStations(state) {
   stationsNode.textContent = '';
   state.stations.forEach((station) => {
-    stationsNode.append(createStationButton(station));
+    stationsNode.append(createStationCard(station));
   });
   renderState(state);
 }

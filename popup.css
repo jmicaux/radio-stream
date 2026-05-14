@@ -34,9 +34,14 @@ button {
   gap: 10px;
 }
 
+.station-card {
+  display: grid;
+  gap: 6px;
+}
+
 .station {
   display: grid;
-  min-height: 104px;
+  min-height: 92px;
   padding: 12px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -52,7 +57,8 @@ button {
 }
 
 .station:focus-visible,
-.stop:focus-visible {
+.stop:focus-visible,
+.site-link:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
@@ -82,6 +88,20 @@ button {
   line-height: 1.2;
   text-align: center;
   overflow-wrap: anywhere;
+}
+
+.site-link {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.site-link:hover {
+  color: var(--station-color);
 }
 
 .stop {
