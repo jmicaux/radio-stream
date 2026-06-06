@@ -22,6 +22,12 @@ body {
   overflow: auto;
 }
 
+@media (min-height: 650px) {
+  body {
+    width: auto;
+  }
+}
+
 button {
   font: inherit;
 }
@@ -32,7 +38,7 @@ button {
 
 .stations {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
   gap: 9px;
   margin-top: 10px;
 }
@@ -128,5 +134,73 @@ button {
   margin: 8px 0 0;
   color: var(--muted);
   font-size: 12px;
+  text-align: center;
+}
+
+.version {
+  margin: 10px 0 0;
+  color: #9aa3b2;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: right;
+}
+
+body.sidebar {
+  width: auto;
+  max-height: none;
+}
+
+.sidebar .panel {
+  padding: 8px;
+}
+
+.sidebar .stations {
+  grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.sidebar .station-card {
+  gap: 3px;
+}
+
+.sidebar .station {
+  min-height: 58px;
+  padding: 5px 4px;
+  gap: 4px;
+}
+
+.sidebar .mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  font-size: 11px;
+}
+
+.sidebar .name {
+  font-size: 10px;
+  line-height: 1.05;
+}
+
+.sidebar .site-link {
+  display: none;
+}
+
+.sidebar .stop {
+  min-height: 32px;
+  border-radius: 7px;
+  font-size: 12px;
+}
+
+.sidebar .status {
+  min-height: 14px;
+  margin-top: 5px;
+  font-size: 10px;
+}
+
+.sidebar .version {
+  margin-top: 7px;
+  font-size: 9px;
   text-align: center;
 }

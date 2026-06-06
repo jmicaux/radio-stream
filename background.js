@@ -298,10 +298,6 @@ function supportsOffscreen() {
   return !!(api.tabs && typeof api.tabs.create === 'function');
 }
 
-function requiresFocusedPlayerTab() {
-  return typeof browser !== 'undefined';
-}
-
 function tabsCreate(createProperties) {
   if (typeof browser !== 'undefined') {
     return browser.tabs.create(createProperties);
@@ -404,7 +400,7 @@ async function ensureOffscreenDocument() {
   if (!playerCreating) {
     playerCreating = tabsCreate({
       url: api.runtime.getURL(OFFSCREEN_PATH),
-      active: requiresFocusedPlayerTab()
+      active: false
     }).then((tab) => {
       playerTabId = tab && typeof tab.id === 'number' ? tab.id : null;
       playerReady = false;
@@ -771,6 +767,12 @@ if (api.tabs && api.tabs.onRemoved) {
         stopLocalStream();
       }
     }
+  });
+}
+
+if (api.action && api.action.onClicked && typeof browser !== 'undefined' && browser.sidebarAction) {
+  api.action.onClicked.addListener(() => {
+    browser.sidebarAction.open().catch(() => {});
   });
 }
 
