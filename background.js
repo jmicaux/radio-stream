@@ -295,7 +295,7 @@ function storageSet(values) {
 }
 
 function supportsOffscreen() {
-  return !!(api.tabs && typeof api.tabs.create === 'function');
+  return typeof browser === 'undefined' && !!(api.tabs && typeof api.tabs.create === 'function');
 }
 
 function tabsCreate(createProperties) {
