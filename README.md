@@ -57,24 +57,6 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 4. Select this project folder.
 5. For packaged testing, use `versions/v0.2/radio-stream-extension-chrome.zip`.
 
-## Build ZIP
-
-Run from the project root:
-
-```sh
-mkdir -p versions/v0.2
-zip -r versions/v0.2/radio-stream-extension-chrome.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
-mkdir -p versions/v0.2/firefox-build
-cp manifest.firefox.json versions/v0.2/firefox-build/manifest.json
-cp background.js popup.html popup.css popup.js sidebar.html sidebar.js offscreen.html offscreen.js versions/v0.2/firefox-build/
-cp -r assets versions/v0.2/firefox-build/assets
-cd versions/v0.2/firefox-build
-zip -r ../radio-stream-extension-firefox.zip manifest.json background.js popup.html popup.css popup.js sidebar.html sidebar.js offscreen.html offscreen.js assets
-```
-
-Use `versions/v0.2/radio-stream-extension-chrome.zip` for Chrome / Chromium.
-Use `versions/v0.2/radio-stream-extension-firefox.zip` for Firefox.
-
 ## Notes
 
 - This extension uses direct audio streams rather than opening radio website player pages.
