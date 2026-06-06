@@ -49,6 +49,8 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 3. For source testing, select `manifest.firefox.json` from this project folder.
 4. For packaged testing, use `versions/v0.2/radio-stream-extension-firefox.zip`.
 
+Firefox self-hosted updates use `releases/firefox/updates.json`, which points to the packaged XPI in `releases/firefox/`.
+
 ### Chrome / Chromium
 
 1. Open `chrome://extensions`.
@@ -66,3 +68,4 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 - The toolbar badge shows `ON` while a station is playing.
 - The `Stop` button stops the current stream.
 - Firefox playback is controlled from the sidebar, not from the toolbar popup.
+- Firefox update manifests use the add-on ID `radio-stream@jmicaux.github.io`.
