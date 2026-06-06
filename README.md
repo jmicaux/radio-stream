@@ -59,10 +59,11 @@ Run from the project root:
 
 ```sh
 mkdir -p versions/v0.2
-zip -r versions/v0.2/radio-stream-extension.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
+zip -r versions/v0.2/radio-stream-extension-chrome.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
 ```
 
-The generated ZIP can be used for browser extension installation workflows that accept packed extension archives.
+Use `versions/v0.2/radio-stream-extension-chrome.zip` for Chrome / Chromium.
+Use `versions/v0.2/radio-stream-extension-firefox.zip` for Firefox.
 
 ## Notes
 
