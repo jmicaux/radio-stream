@@ -246,11 +246,24 @@ const STATIONS = [
 
 const api = typeof browser !== 'undefined' ? browser : chrome;
 const USAGE_KEY = 'stationUsage';
+const OFFSCREEN_PATH = 'offscreen.html';
 let audio = null;
 let currentStationId = null;
+let currentStreamUrl = null;
 let status = 'stopped';
 let playbackToken = 0;
 let countedPlaybackToken = 0;
+let playerTabId = null;
+let playerReady = false;
+let pendingPlaybackRequest = null;
+let playerCreating = null;
+let playbackMode = 'direct';
+let playbackHeartbeatTimer = null;
+let lastPlaybackHeartbeatAt = 0;
+let lastPlaybackPosition = 0;
+let lastPlaybackProgressAt = 0;
+let playbackRestartAt = 0;
+let keepAwakeRequested = false;
 
 function findStation(stationId) {
   return STATIONS.find((station) => station.id === stationId);
@@ -279,6 +292,185 @@ function storageSet(values) {
   return new Promise((resolve) => {
     chrome.storage.local.set(values, resolve);
   });
+}
+
+function supportsOffscreen() {
+  return !!(api.tabs && typeof api.tabs.create === 'function');
+}
+
+function tabsCreate(createProperties) {
+  if (typeof browser !== 'undefined') {
+    return browser.tabs.create(createProperties);
+  }
+
+  return new Promise((resolve, reject) => {
+    api.tabs.create(createProperties, (tab) => {
+      const lastError = api.runtime.lastError;
+      if (lastError) {
+        reject(new Error(lastError.message));
+        return;
+      }
+
+      resolve(tab);
+    });
+  });
+}
+
+function tabsGet(tabId) {
+  if (typeof browser !== 'undefined') {
+    return browser.tabs.get(tabId);
+  }
+
+  return new Promise((resolve, reject) => {
+    api.tabs.get(tabId, (tab) => {
+      const lastError = api.runtime.lastError;
+      if (lastError) {
+        reject(new Error(lastError.message));
+        return;
+      }
+
+      resolve(tab);
+    });
+  });
+}
+
+function tabsRemove(tabId) {
+  if (typeof browser !== 'undefined') {
+    return browser.tabs.remove(tabId);
+  }
+
+  return new Promise((resolve, reject) => {
+    api.tabs.remove(tabId, () => {
+      const lastError = api.runtime.lastError;
+      if (lastError) {
+        reject(new Error(lastError.message));
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+function tabsUpdate(tabId, updateProperties) {
+  if (typeof browser !== 'undefined') {
+    return browser.tabs.update(tabId, updateProperties);
+  }
+
+  return new Promise((resolve, reject) => {
+    api.tabs.update(tabId, updateProperties, (tab) => {
+      const lastError = api.runtime.lastError;
+      if (lastError) {
+        reject(new Error(lastError.message));
+        return;
+      }
+
+      resolve(tab);
+    });
+  });
+}
+
+async function hasOffscreenDocument() {
+  if (!supportsOffscreen()) {
+    return false;
+  }
+
+  if (playerTabId !== null) {
+    try {
+      await tabsGet(playerTabId);
+      return true;
+    } catch (error) {
+      playerTabId = null;
+      playerReady = false;
+    }
+  }
+
+  return false;
+}
+
+async function ensureOffscreenDocument() {
+  if (!supportsOffscreen()) {
+    return false;
+  }
+
+  if (await hasOffscreenDocument()) {
+    return true;
+  }
+
+  if (!playerCreating) {
+    playerCreating = tabsCreate({
+      url: api.runtime.getURL(OFFSCREEN_PATH),
+      active: false
+    }).then((tab) => {
+      playerTabId = tab && typeof tab.id === 'number' ? tab.id : null;
+      playerReady = false;
+      if (playerTabId !== null) {
+        return tabsUpdate(playerTabId, {
+          autoDiscardable: false
+        }).catch(() => {});
+      }
+    }).finally(() => {
+      playerCreating = null;
+    });
+  }
+
+  await playerCreating;
+  return true;
+}
+
+function sendOffscreenMessage(message) {
+  return new Promise((resolve, reject) => {
+    api.runtime.sendMessage(message, (response) => {
+      const lastError = api.runtime.lastError;
+      if (lastError) {
+        reject(new Error(lastError.message));
+        return;
+      }
+
+      resolve(response);
+    });
+  });
+}
+
+function requestKeepAwake() {
+  if (!api.power || typeof api.power.requestKeepAwake !== 'function' || keepAwakeRequested) {
+    return;
+  }
+
+  api.power.requestKeepAwake('system');
+  keepAwakeRequested = true;
+}
+
+function releaseKeepAwake() {
+  if (!api.power || typeof api.power.releaseKeepAwake !== 'function' || !keepAwakeRequested) {
+    return;
+  }
+
+  api.power.releaseKeepAwake();
+  keepAwakeRequested = false;
+}
+
+function clearPendingPlayback() {
+  pendingPlaybackRequest = null;
+}
+
+function dispatchPendingPlayback() {
+  if (!pendingPlaybackRequest || !playerReady) {
+    return false;
+  }
+
+  const request = pendingPlaybackRequest;
+  pendingPlaybackRequest = null;
+  sendOffscreenMessage({
+    type: 'PLAY_STATION',
+    target: 'offscreen',
+    stationId: request.stationId,
+    streamUrl: request.streamUrl,
+    token: request.token
+  }).catch(() => {
+    pendingPlaybackRequest = request;
+  });
+  return true;
 }
 
 function loadUsage() {
@@ -321,6 +513,65 @@ function recordUsage(stationId) {
   });
 }
 
+function ensurePlaybackHeartbeatWatchdog() {
+  if (playbackHeartbeatTimer) {
+    return;
+  }
+
+  playbackHeartbeatTimer = setInterval(() => {
+    if (playbackMode !== 'offscreen' || status !== 'playing' || !currentStationId) {
+      return;
+    }
+
+    const now = Date.now();
+    if (lastPlaybackHeartbeatAt && now - lastPlaybackHeartbeatAt > 15000) {
+      restartCurrentStation('heartbeat timeout');
+      return;
+    }
+
+    if (lastPlaybackProgressAt && now - lastPlaybackProgressAt > 20000 && now - playbackRestartAt > 10000) {
+      restartCurrentStation('stalled stream');
+      return;
+    }
+  }, 5000);
+}
+
+function resetPlaybackHealth() {
+  lastPlaybackHeartbeatAt = Date.now();
+  lastPlaybackPosition = 0;
+  lastPlaybackProgressAt = Date.now();
+}
+
+function restartCurrentStation(reason) {
+  if (!currentStationId || status === 'loading') {
+    return;
+  }
+
+  if (Date.now() - playbackRestartAt < 10000) {
+    return;
+  }
+
+  playbackRestartAt = Date.now();
+  const stationId = currentStationId;
+  const mode = playbackMode;
+
+  stopStream();
+
+  if (mode === 'offscreen' || supportsOffscreen()) {
+    playStation(stationId).catch((error) => {
+      status = 'error';
+      setBadge('ERR', '#b3261e');
+      return getState().then((state) => ({
+        ...state,
+        error: (error && error.message) || 'Stream restart failed'
+      }));
+    });
+    return;
+  }
+
+  playStation(stationId).catch(() => {});
+}
+
 function getState() {
   return loadUsage().then((usage) => ({
     status: status,
@@ -329,8 +580,14 @@ function getState() {
   }));
 }
 
-function stopStream() {
+function stopLocalStream() {
   playbackToken += 1;
+  lastPlaybackHeartbeatAt = 0;
+  lastPlaybackPosition = 0;
+  lastPlaybackProgressAt = 0;
+  clearPendingPlayback();
+  currentStreamUrl = null;
+  releaseKeepAwake();
 
   if (audio) {
     const stoppedAudio = audio;
@@ -343,9 +600,39 @@ function stopStream() {
   status = 'stopped';
   currentStationId = null;
   setBadge('', '#737373');
+  playbackMode = 'direct';
 }
 
-function playStation(stationId) {
+function stopStream() {
+  if (playbackMode === 'offscreen' && supportsOffscreen()) {
+    playbackToken += 1;
+    lastPlaybackHeartbeatAt = 0;
+    lastPlaybackPosition = 0;
+    lastPlaybackProgressAt = 0;
+    clearPendingPlayback();
+    sendOffscreenMessage({
+      type: 'STOP',
+      target: 'offscreen',
+      token: playbackToken
+    }).catch(() => {});
+    if (playerTabId !== null) {
+      tabsRemove(playerTabId).catch(() => {});
+      playerTabId = null;
+    }
+    status = 'stopped';
+    currentStationId = null;
+    currentStreamUrl = null;
+    setBadge('', '#737373');
+    playerReady = false;
+    releaseKeepAwake();
+    playbackMode = 'direct';
+    return;
+  }
+
+  stopLocalStream();
+}
+
+function playStationDirect(stationId) {
   const station = findStation(stationId);
 
   if (!station) {
@@ -360,10 +647,16 @@ function playStation(stationId) {
   stopStream();
   playbackToken += 1;
   const token = playbackToken;
+  playbackMode = 'direct';
+  lastPlaybackHeartbeatAt = 0;
+  lastPlaybackPosition = 0;
+  lastPlaybackProgressAt = 0;
 
   status = 'loading';
   currentStationId = station.id;
+  currentStreamUrl = station.streamUrl;
   setBadge('...', station.color);
+  requestKeepAwake();
 
   audio = new Audio(station.streamUrl);
   audio.preload = 'none';
@@ -409,9 +702,73 @@ function playStation(stationId) {
   });
 }
 
+async function playStationOffscreen(stationId) {
+  const station = findStation(stationId);
+
+  if (!station) {
+    throw new Error('Unknown station');
+  }
+
+  if (status === 'playing' && currentStationId === stationId) {
+    stopStream();
+    return getState();
+  }
+
+  stopStream();
+  playbackToken += 1;
+  const token = playbackToken;
+  playbackMode = 'offscreen';
+  resetPlaybackHealth();
+  clearPendingPlayback();
+
+  await ensureOffscreenDocument();
+
+  status = 'loading';
+  currentStationId = station.id;
+  currentStreamUrl = station.streamUrl;
+  setBadge('...', station.color);
+  requestKeepAwake();
+  pendingPlaybackRequest = {
+    stationId: station.id,
+    streamUrl: station.streamUrl,
+    token: token
+  };
+  dispatchPendingPlayback();
+
+  ensurePlaybackHeartbeatWatchdog();
+  return getState();
+}
+
+function playStation(stationId) {
+  if (supportsOffscreen()) {
+    return playStationOffscreen(stationId).catch((error) => {
+      playbackMode = 'direct';
+      return playStationDirect(stationId).catch((directError) => {
+        throw directError || error;
+      });
+    });
+  }
+
+  return playStationDirect(stationId);
+}
+
 api.runtime.onInstalled.addListener(() => {
   setBadge('', '#737373');
+  ensurePlaybackHeartbeatWatchdog();
 });
+
+if (api.tabs && api.tabs.onRemoved) {
+  api.tabs.onRemoved.addListener((tabId) => {
+    if (playerTabId !== null && tabId === playerTabId) {
+      playerTabId = null;
+      playerReady = false;
+      clearPendingPlayback();
+      if (status === 'playing' || status === 'loading') {
+        stopLocalStream();
+      }
+    }
+  });
+}
 
 api.runtime.onMessage.addListener((message) => {
   if (!message || !message.type) {
@@ -424,6 +781,21 @@ api.runtime.onMessage.addListener((message) => {
 
   if (message.type === 'STOP') {
     stopStream();
+    return getState();
+  }
+
+  if (message.type === 'PLAYER_READY') {
+    playerReady = true;
+    if (!pendingPlaybackRequest && playbackMode === 'offscreen' && currentStationId && currentStreamUrl) {
+      pendingPlaybackRequest = {
+        stationId: currentStationId,
+        streamUrl: currentStreamUrl,
+        token: playbackToken
+      };
+    }
+    if (pendingPlaybackRequest) {
+      dispatchPendingPlayback();
+    }
     return getState();
   }
 
@@ -443,5 +815,71 @@ api.runtime.onMessage.addListener((message) => {
     });
   }
 
+  if (message.type === 'PLAYBACK_STATUS') {
+    if (typeof message.token === 'number' && message.token !== playbackToken) {
+      return false;
+    }
+
+    if (message.status === 'heartbeat') {
+      if (message.currentTime > lastPlaybackPosition) {
+        lastPlaybackPosition = message.currentTime;
+        lastPlaybackProgressAt = Date.now();
+      }
+      lastPlaybackHeartbeatAt = Date.now();
+
+      if (message.paused || message.ended) {
+        restartCurrentStation('heartbeat reported pause');
+        return getState();
+      }
+
+      return false;
+    }
+
+    if (message.status === 'playing') {
+      resetPlaybackHealth();
+      requestKeepAwake();
+      const station = findStation(message.stationId || currentStationId);
+      status = 'playing';
+      currentStationId = message.stationId || currentStationId;
+      setBadge('ON', station ? station.color : '#2f6b2f');
+      if (message.stationId && countedPlaybackToken !== playbackToken) {
+        countedPlaybackToken = playbackToken;
+        return recordUsage(message.stationId).then(getState);
+      }
+      return getState();
+    }
+
+    if (message.status === 'stopped') {
+      status = 'stopped';
+      currentStationId = null;
+      setBadge('', '#737373');
+      playbackMode = 'direct';
+      lastPlaybackHeartbeatAt = 0;
+      lastPlaybackPosition = 0;
+      lastPlaybackProgressAt = 0;
+      releaseKeepAwake();
+      return getState();
+    }
+
+    if (message.status === 'error') {
+      status = 'error';
+      if (message.stationId) {
+        currentStationId = message.stationId;
+      }
+      setBadge('ERR', '#b3261e');
+      playbackMode = 'direct';
+      lastPlaybackHeartbeatAt = 0;
+      lastPlaybackPosition = 0;
+      lastPlaybackProgressAt = 0;
+      releaseKeepAwake();
+      return getState().then((state) => ({
+        ...state,
+        error: message.error || 'Stream error'
+      }));
+    }
+  }
+
   return false;
 });
+
+ensurePlaybackHeartbeatWatchdog();

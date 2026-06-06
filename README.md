@@ -58,7 +58,7 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 Run from the project root:
 
 ```sh
-zip -r radio-stream-extension.zip manifest.json background.js popup.html popup.css popup.js assets
+zip -r radio-stream-extension.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
 ```
 
 The generated ZIP can be used for browser extension installation workflows that accept packed extension archives.
