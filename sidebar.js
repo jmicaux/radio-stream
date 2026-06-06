@@ -3,58 +3,55 @@ const stationsNode = document.getElementById('stations');
 const stopButton = document.getElementById('stop');
 const statusNode = document.getElementById('status');
 
-function sendMessage(message) {
-  if (typeof browser !== 'undefined') {
-    return browser.runtime.sendMessage(message);
-  }
+let audio = null;
+let stations = [];
+let currentStationId = null;
+let status = 'stopped';
 
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(message, resolve);
-  });
+function sendMessage(message) {
+  return api.runtime.sendMessage(message);
 }
 
 function setStatus(message) {
   statusNode.textContent = message || '';
 }
 
-function supportsSidebarPlayback() {
-  return typeof browser !== 'undefined'
-    && browser.sidebarAction
-    && typeof browser.sidebarAction.open === 'function';
-}
-
-function openSidebar() {
-  if (!supportsSidebarPlayback()) {
-    return Promise.resolve(false);
+function stopAudio() {
+  if (audio) {
+    audio.pause();
+    audio.removeAttribute('src');
+    audio = null;
   }
 
-  return browser.sidebarAction.open().then(() => true);
+  currentStationId = null;
+  status = 'stopped';
+  renderPlaybackState();
 }
 
-function renderState(state) {
-  const isActive = state.status === 'playing' || state.status === 'loading';
-  const station = state.stations.find((item) => item.id === state.currentStationId);
+function renderPlaybackState() {
+  const isActive = status === 'playing' || status === 'loading';
+  const station = stations.find((item) => item.id === currentStationId);
 
   document.querySelectorAll('.station').forEach((button) => {
-    const active = button.dataset.stationId === state.currentStationId && isActive;
+    const active = button.dataset.stationId === currentStationId && isActive;
     button.classList.toggle('is-active', active);
     button.setAttribute('aria-pressed', String(active));
   });
 
   stopButton.disabled = !isActive;
-  stopButton.textContent = station && isActive ? 'Stop - ' + station.name : 'Stop';
+  stopButton.textContent = isActive ? 'Stop' : 'Stop';
 
-  if (state.status === 'loading') {
+  if (status === 'loading') {
     setStatus(station ? 'Connexion à ' + station.name + '...' : 'Connexion...');
     return;
   }
 
-  if (state.status === 'playing') {
+  if (status === 'playing') {
     setStatus(station ? station.name : '');
     return;
   }
 
-  if (state.status === 'error') {
+  if (status === 'error') {
     setStatus('Flux indisponible.');
     return;
   }
@@ -62,19 +59,52 @@ function renderState(state) {
   setStatus('');
 }
 
+function playStation(station) {
+  if (status === 'playing' && currentStationId === station.id) {
+    stopAudio();
+    return;
+  }
+
+  stopAudio();
+  currentStationId = station.id;
+  status = 'loading';
+  renderPlaybackState();
+
+  audio = new Audio(station.streamUrl);
+  audio.preload = 'none';
+  audio.addEventListener('playing', () => {
+    status = 'playing';
+    renderPlaybackState();
+  });
+  audio.addEventListener('pause', () => {
+    if (audio) {
+      stopAudio();
+    }
+  });
+  audio.addEventListener('error', () => {
+    status = 'error';
+    renderPlaybackState();
+  });
+
+  audio.play().catch(() => {
+    status = 'error';
+    renderPlaybackState();
+  });
+}
+
 function createStationCard(station) {
   const card = document.createElement('div');
   card.className = 'station-card';
   card.style.setProperty('--station-color', station.color);
 
+  if (station.textColor) {
+    card.style.setProperty('--station-text', station.textColor);
+  }
+
   const button = document.createElement('button');
   button.className = 'station';
   button.type = 'button';
   button.dataset.stationId = station.id;
-
-  if (station.textColor) {
-    card.style.setProperty('--station-text', station.textColor);
-  }
 
   const mark = document.createElement('span');
   mark.className = 'mark';
@@ -87,17 +117,7 @@ function createStationCard(station) {
 
   button.append(mark, name);
   button.addEventListener('click', () => {
-    if (supportsSidebarPlayback()) {
-      setStatus('Sidebar Radio Stream ouverte.');
-      openSidebar();
-      return;
-    }
-
-    setStatus('Connexion...');
-    sendMessage({
-      type: 'PLAY_STATION',
-      stationId: station.id
-    }).then(renderState);
+    playStation(station);
   });
 
   const link = document.createElement('a');
@@ -112,15 +132,14 @@ function createStationCard(station) {
 }
 
 function renderStations(state) {
+  stations = state.stations;
   stationsNode.textContent = '';
-  state.stations.forEach((station) => {
+  stations.forEach((station) => {
     stationsNode.append(createStationCard(station));
   });
-  renderState(state);
+  renderPlaybackState();
 }
 
-stopButton.addEventListener('click', () => {
-  sendMessage({ type: 'STOP' }).then(renderState);
-});
+stopButton.addEventListener('click', stopAudio);
 
 sendMessage({ type: 'GET_STATE' }).then(renderStations);
