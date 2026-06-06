@@ -60,6 +60,12 @@ Run from the project root:
 ```sh
 mkdir -p versions/v0.2
 zip -r versions/v0.2/radio-stream-extension-chrome.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
+mkdir -p versions/v0.2/firefox-build
+cp manifest.firefox.json versions/v0.2/firefox-build/manifest.json
+cp background.js popup.html offscreen.html popup.css popup.js offscreen.js versions/v0.2/firefox-build/
+cp -r assets versions/v0.2/firefox-build/assets
+cd versions/v0.2/firefox-build
+zip -r ../radio-stream-extension-firefox.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
 ```
 
 Use `versions/v0.2/radio-stream-extension-chrome.zip` for Chrome / Chromium.
