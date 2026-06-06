@@ -1,8 +1,21 @@
 const api = typeof browser !== 'undefined' ? browser : chrome;
+const statusNode = document.getElementById('status');
+const stopButton = document.getElementById('stop');
 
 let audio = null;
 let currentToken = 0;
 let heartbeatTimer = null;
+let currentStationId = null;
+
+function setPlayerStatus(message, canStop) {
+  if (statusNode) {
+    statusNode.textContent = message;
+  }
+
+  if (stopButton) {
+    stopButton.disabled = !canStop;
+  }
+}
 
 function notifyPlaybackStatus(status, stationId, token, error) {
   const message = {
@@ -57,19 +70,24 @@ function startHeartbeat(stationId, token) {
 function stopAudio() {
   if (!audio) {
     stopHeartbeat();
+    setPlayerStatus('Lecteur prêt', false);
     return;
   }
 
   const stoppedAudio = audio;
   audio = null;
+  currentStationId = null;
   stopHeartbeat();
   stoppedAudio.pause();
   stoppedAudio.removeAttribute('src');
+  setPlayerStatus('Lecture arrêtée', false);
 }
 
 function playStation(stationId, streamUrl, token) {
   stopAudio();
   currentToken = token;
+  currentStationId = stationId;
+  setPlayerStatus('Connexion...', false);
 
   audio = new Audio(streamUrl);
   audio.preload = 'auto';
@@ -79,6 +97,7 @@ function playStation(stationId, streamUrl, token) {
     }
 
     startHeartbeat(stationId, token);
+    setPlayerStatus('Lecture en cours', true);
     notifyPlaybackStatus('playing', stationId, token);
   });
   audio.addEventListener('pause', () => {
@@ -87,6 +106,7 @@ function playStation(stationId, streamUrl, token) {
     }
 
     stopHeartbeat();
+    setPlayerStatus('Lecture arrêtée', false);
     notifyPlaybackStatus('stopped', stationId, token);
   });
   audio.addEventListener('ended', () => {
@@ -95,6 +115,7 @@ function playStation(stationId, streamUrl, token) {
     }
 
     stopHeartbeat();
+    setPlayerStatus('Lecture arrêtée', false);
     notifyPlaybackStatus('stopped', stationId, token);
   });
   audio.addEventListener('error', () => {
@@ -103,6 +124,7 @@ function playStation(stationId, streamUrl, token) {
     }
 
     stopHeartbeat();
+    setPlayerStatus('Erreur de lecture', false);
     const error = audio && audio.error ? 'Audio error ' + audio.error.code : 'Audio playback failed';
     notifyPlaybackStatus('error', stationId, token, error);
   });
@@ -113,7 +135,17 @@ function playStation(stationId, streamUrl, token) {
     }
 
     stopHeartbeat();
+    setPlayerStatus('Cliquez dans cet onglet pour autoriser le son, puis relancez la radio.', false);
     notifyPlaybackStatus('error', stationId, token, error && error.message ? error.message : 'Audio playback failed');
+  });
+}
+
+if (stopButton) {
+  stopButton.addEventListener('click', () => {
+    api.runtime.sendMessage({
+      type: 'STOP',
+      stationId: currentStationId
+    });
   });
 }
 

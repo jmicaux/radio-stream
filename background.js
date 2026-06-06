@@ -298,6 +298,10 @@ function supportsOffscreen() {
   return !!(api.tabs && typeof api.tabs.create === 'function');
 }
 
+function requiresFocusedPlayerTab() {
+  return typeof browser !== 'undefined';
+}
+
 function tabsCreate(createProperties) {
   if (typeof browser !== 'undefined') {
     return browser.tabs.create(createProperties);
@@ -400,7 +404,7 @@ async function ensureOffscreenDocument() {
   if (!playerCreating) {
     playerCreating = tabsCreate({
       url: api.runtime.getURL(OFFSCREEN_PATH),
-      active: false
+      active: requiresFocusedPlayerTab()
     }).then((tab) => {
       playerTabId = tab && typeof tab.id === 'number' ? tab.id : null;
       playerReady = false;
