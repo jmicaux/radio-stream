@@ -295,7 +295,15 @@ function storageSet(values) {
 }
 
 function supportsOffscreen() {
-  return !!(api.tabs && typeof api.tabs.create === 'function');
+  return !!(
+    (api.offscreen && typeof api.offscreen.createDocument === 'function')
+    || (api.tabs && typeof api.tabs.create === 'function')
+  );
+}
+
+function supportsChromeOffscreenDocument() {
+  return typeof browser === 'undefined'
+    && !!(api.offscreen && typeof api.offscreen.createDocument === 'function');
 }
 
 function tabsCreate(createProperties) {
@@ -375,6 +383,18 @@ async function hasOffscreenDocument() {
     return false;
   }
 
+  if (supportsChromeOffscreenDocument()) {
+    if (!api.runtime.getContexts) {
+      return playerReady;
+    }
+
+    const contexts = await api.runtime.getContexts({
+      contextTypes: ['OFFSCREEN_DOCUMENT'],
+      documentUrls: [api.runtime.getURL(OFFSCREEN_PATH)]
+    });
+    return contexts.length > 0;
+  }
+
   if (playerTabId !== null) {
     try {
       await tabsGet(playerTabId);
@@ -398,6 +418,20 @@ async function ensureOffscreenDocument() {
   }
 
   if (!playerCreating) {
+    if (supportsChromeOffscreenDocument()) {
+      playerCreating = api.offscreen.createDocument({
+        url: OFFSCREEN_PATH,
+        reasons: ['AUDIO_PLAYBACK'],
+        justification: 'Play live radio streams from the extension.'
+      }).then(() => {
+        playerReady = false;
+      }).finally(() => {
+        playerCreating = null;
+      });
+      await playerCreating;
+      return true;
+    }
+
     playerCreating = tabsCreate({
       url: api.runtime.getURL(OFFSCREEN_PATH),
       active: false
@@ -615,7 +649,9 @@ function stopStream() {
       target: 'offscreen',
       token: playbackToken
     }).catch(() => {});
-    if (playerTabId !== null) {
+    if (supportsChromeOffscreenDocument()) {
+      api.offscreen.closeDocument().catch(() => {});
+    } else if (playerTabId !== null) {
       tabsRemove(playerTabId).catch(() => {});
       playerTabId = null;
     }
@@ -755,6 +791,9 @@ function playStation(stationId) {
 api.runtime.onInstalled.addListener(() => {
   setBadge('', '#737373');
   ensurePlaybackHeartbeatWatchdog();
+  if (api.sidePanel && typeof api.sidePanel.setPanelBehavior === 'function') {
+    api.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+  }
 });
 
 if (api.tabs && api.tabs.onRemoved) {

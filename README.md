@@ -1,8 +1,8 @@
 # Radio Stream
 
-Browser extension to play popular French live radio streams from the toolbar.
+Browser extension to play popular French live radio streams from the browser sidebar.
 
-Chrome / Chromium uses the toolbar popup. Firefox uses the browser sidebar so playback remains integrated and stoppable without focusing a hidden player tab.
+Chrome / Chromium and Firefox use the browser sidebar so playback remains integrated and stoppable without focusing a hidden player tab.
 
 ## Radios
 
@@ -47,9 +47,10 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 1. Open `about:debugging#/runtime/this-firefox`.
 2. Click `Load Temporary Add-on...`.
 3. For source testing, select `manifest.firefox.json` from this project folder.
-4. For packaged testing, use `versions/v0.2/radio-stream-extension-firefox.zip`.
+4. For packaged testing, use `dist/v0.2/firefox/radio-stream-extension-firefox.zip`.
 
-Firefox self-hosted updates use `releases/firefox/updates.json`, which points to the packaged XPI in `releases/firefox/`.
+Firefox self-hosted updates use `releases/v0.2/firefox/updates.json`, which points to the packaged XPI in `releases/v0.2/firefox/`.
+Chrome packaged builds live in `dist/v0.2/chrome/` and `releases/v0.2/chrome/`.
 
 ### Chrome / Chromium
 
@@ -57,7 +58,8 @@ Firefox self-hosted updates use `releases/firefox/updates.json`, which points to
 2. Enable `Developer mode`.
 3. Click `Load unpacked`.
 4. Select this project folder.
-5. For packaged testing, use `versions/v0.2/radio-stream-extension-chrome.zip`.
+5. For packaged testing, use `dist/v0.2/chrome/radio-stream-extension-chrome.zip`.
+Chrome release artifacts are mirrored in `releases/v0.2/chrome/` for symmetry with Firefox.
 
 ## Notes
 
@@ -65,7 +67,6 @@ Firefox self-hosted updates use `releases/firefox/updates.json`, which points to
 - The radio list follows the top 30 ACPM Radio Brands France ranking from April 2026.
 - `ici` and `Outre-Mer la 1ère` are ACPM brand aggregates, so the extension uses representative live streams for those brands.
 - Local usage sorting is stored in the browser with `storage.local`.
-- The toolbar badge shows `ON` while a station is playing.
 - The `Stop` button stops the current stream.
-- Firefox playback is controlled from the sidebar, not from the toolbar popup.
+- Playback is controlled from the sidebar.
 - Firefox update manifests use the add-on ID `radio-stream@jmicaux.github.io`.
