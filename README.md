@@ -2,6 +2,8 @@
 
 Browser extension to play popular French live radio streams from the toolbar.
 
+Chrome / Chromium uses the toolbar popup. Firefox uses the browser sidebar so playback remains integrated and stoppable without focusing a hidden player tab.
+
 ## Radios
 
 - France Inter
@@ -44,7 +46,8 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 
 1. Open `about:debugging#/runtime/this-firefox`.
 2. Click `Load Temporary Add-on...`.
-3. Select `manifest.json` from this project folder.
+3. For source testing, select `manifest.firefox.json` from this project folder.
+4. For packaged testing, use `versions/v0.2/radio-stream-extension-firefox.zip`.
 
 ### Chrome / Chromium
 
@@ -52,6 +55,7 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 2. Enable `Developer mode`.
 3. Click `Load unpacked`.
 4. Select this project folder.
+5. For packaged testing, use `versions/v0.2/radio-stream-extension-chrome.zip`.
 
 ## Build ZIP
 
@@ -62,10 +66,10 @@ mkdir -p versions/v0.2
 zip -r versions/v0.2/radio-stream-extension-chrome.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
 mkdir -p versions/v0.2/firefox-build
 cp manifest.firefox.json versions/v0.2/firefox-build/manifest.json
-cp background.js popup.html offscreen.html popup.css popup.js offscreen.js versions/v0.2/firefox-build/
+cp background.js popup.html popup.css popup.js sidebar.html sidebar.js offscreen.html offscreen.js versions/v0.2/firefox-build/
 cp -r assets versions/v0.2/firefox-build/assets
 cd versions/v0.2/firefox-build
-zip -r ../radio-stream-extension-firefox.zip manifest.json background.js popup.html offscreen.html popup.css popup.js offscreen.js assets
+zip -r ../radio-stream-extension-firefox.zip manifest.json background.js popup.html popup.css popup.js sidebar.html sidebar.js offscreen.html offscreen.js assets
 ```
 
 Use `versions/v0.2/radio-stream-extension-chrome.zip` for Chrome / Chromium.
@@ -79,3 +83,4 @@ Use `versions/v0.2/radio-stream-extension-firefox.zip` for Firefox.
 - Local usage sorting is stored in the browser with `storage.local`.
 - The toolbar badge shows `ON` while a station is playing.
 - The `Stop` button stops the current stream.
+- Firefox playback is controlled from the sidebar, not from the toolbar popup.
