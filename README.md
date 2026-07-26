@@ -47,10 +47,10 @@ Stations are sorted locally by usage: the radios you play most appear first, wit
 1. Open `about:debugging#/runtime/this-firefox`.
 2. Click `Load Temporary Add-on...`.
 3. For source testing, select `manifest.firefox.json` from this project folder.
-4. For packaged testing, use `dist/v0.2/firefox/radio-stream-extension-firefox.zip`.
+4. For packaged testing, use `dist/v0.3/firefox/radio-stream-extension-firefox.zip`.
 
-Firefox self-hosted updates use `releases/v0.2/firefox/updates.json`, which points to the packaged XPI in `releases/v0.2/firefox/`.
-Chrome packaged builds live in `dist/v0.2/chrome/` and `releases/v0.2/chrome/`.
+Firefox self-hosted updates use `releases/v0.3/firefox/updates.json`, which points to the packaged XPI in `releases/v0.3/firefox/`.
+Chrome packaged builds live in `dist/v0.3/chrome/` and `releases/v0.3/chrome/`.
 
 ### Chrome / Chromium
 
@@ -58,8 +58,8 @@ Chrome packaged builds live in `dist/v0.2/chrome/` and `releases/v0.2/chrome/`.
 2. Enable `Developer mode`.
 3. Click `Load unpacked`.
 4. Select this project folder.
-5. For packaged testing, use `dist/v0.2/chrome/radio-stream-extension-chrome.zip`.
-Chrome release artifacts are mirrored in `releases/v0.2/chrome/` for symmetry with Firefox.
+5. For packaged testing, use `dist/v0.3/chrome/radio-stream-extension-chrome.zip`.
+Chrome release artifacts are mirrored in `releases/v0.3/chrome/` for symmetry with Firefox.
 
 ## Notes
 

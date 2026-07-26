@@ -9,21 +9,7 @@ let currentStationId = null;
 let status = 'stopped';
 
 function sendMessage(message) {
-  if (typeof browser !== 'undefined') {
-    return browser.runtime.sendMessage(message);
-  }
-
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(message, (response) => {
-      const lastError = chrome.runtime.lastError;
-      if (lastError) {
-        reject(new Error(lastError.message));
-        return;
-      }
-
-      resolve(response);
-    });
-  });
+  return api.runtime.sendMessage(message);
 }
 
 function setStatus(message) {
@@ -156,8 +142,4 @@ function renderStations(state) {
 
 stopButton.addEventListener('click', stopAudio);
 
-sendMessage({ type: 'GET_STATE' })
-  .then(renderStations)
-  .catch(() => {
-    setStatus('Impossible de charger les stations.');
-  });
+sendMessage({ type: 'GET_STATE' }).then(renderStations);
