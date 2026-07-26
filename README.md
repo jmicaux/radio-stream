@@ -4,6 +4,8 @@ Browser extension to play popular French live radio streams from the browser sid
 
 Chrome / Chromium and Firefox use the browser sidebar so playback remains integrated and stoppable without focusing a hidden player tab.
 
+If you enjoy this extension, you can [buy me a coffee ☕](https://buymeacoffee.com/jmicaux).
+
 ## Radios
 
 - France Inter
