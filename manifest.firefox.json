@@ -5,7 +5,6 @@
   "description": "Play French radio live audio streams from the extension.",
   "permissions": [
     "storage",
-    "tabs",
     "power"
   ],
   "icons": {
