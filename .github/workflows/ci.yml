@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check JS syntax
+        run: |
+          find . -name '*.js' -not -path './dist/*' -not -path './releases/*' -not -path './.git/*' -print0 \
+            | xargs -0 -r -n1 node --check
+
+      - name: Validate manifest JSON
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('manifest.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('manifest.firefox.json','utf8'))"
+
+      - name: web-ext lint (Firefox build)
+        run: |
+          mkdir -p build/ff
+          cp manifest.firefox.json build/ff/manifest.json
+          cp background.js offscreen.html offscreen.js popup.css sidebar.html sidebar.js build/ff/
+          cp -r assets build/ff/
+          npx --yes web-ext@latest lint --source-dir build/ff --self-hosted
