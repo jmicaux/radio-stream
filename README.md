@@ -100,6 +100,12 @@ radio-stream/
 - Each station plays its own public live stream directly rather than opening its website
   player page.
 
+## Quality
+
+This project follows a documented quality review process covering accessibility, security, performance and code quality.
+
+See [QUALITY.md](QUALITY.md).
+
 ## License
 
 Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md): you are free to fork,
