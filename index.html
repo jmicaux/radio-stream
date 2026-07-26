@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radio Stream — Live demo</title>
+  <meta name="description" content="Interactive demo of the Radio Stream browser extension: open the sidebar and play French live radio streams.">
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --page-bg: #eef1f5;
+      --chrome-bg: #e3e6eb;
+      --chrome-border: #d0d4da;
+      --ink: #151922;
+      --muted: #6b7280;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 80% -10%, #dfe7ff 0%, transparent 60%),
+        radial-gradient(1000px 500px at -10% 110%, #ffe6ef 0%, transparent 55%),
+        var(--page-bg);
+      color: var(--ink);
+    }
+
+    .wrap {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 32px 20px 56px;
+    }
+
+    .intro {
+      text-align: center;
+      margin: 8px 0 24px;
+    }
+    .intro h1 {
+      margin: 0 0 6px;
+      font-size: 26px;
+      letter-spacing: -0.02em;
+    }
+    .intro p {
+      margin: 0 auto;
+      max-width: 640px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    .demo-note {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: #fff7d6;
+      border: 1px solid #f2d98a;
+      color: #7a5b00;
+      font-size: 12.5px;
+    }
+
+    /* ---- Browser frame ---- */
+    .browser {
+      border: 1px solid var(--chrome-border);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 24px 60px -24px rgba(20, 25, 34, 0.4);
+    }
+
+    .chrome {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--chrome-bg);
+      border-bottom: 1px solid var(--chrome-border);
+    }
+    .dots { display: flex; gap: 8px; flex-shrink: 0; }
+    .dots span { width: 12px; height: 12px; border-radius: 50%; }
+    .dots .r { background: #ff5f57; }
+    .dots .y { background: #febc2e; }
+    .dots .g { background: #28c840; }
+
+    .nav-btns { display: flex; gap: 4px; color: #9aa0a8; flex-shrink: 0; }
+    .nav-btns span {
+      width: 26px; height: 26px;
+      display: grid; place-items: center;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    .address {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      padding: 7px 12px;
+      background: #fff;
+      border: 1px solid var(--chrome-border);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .address .lock { color: #22a45d; font-size: 12px; }
+    .address .url { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .ext-btn {
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid var(--chrome-border);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color .15s, border-color .15s, box-shadow .15s;
+    }
+    .ext-btn:hover { background: #f3f4f6; }
+    .ext-btn[aria-expanded="true"] {
+      border-color: #b9c0ff;
+      box-shadow: 0 0 0 3px rgba(103, 116, 255, 0.18);
+      background: #eef0ff;
+    }
+    .ext-btn .ico {
+      width: 22px; height: 22px;
+      display: grid; place-items: center;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #e31b23, #f47b20);
+      color: #fff; font-size: 13px;
+    }
+    .ext-btn .pill {
+      margin-left: 2px;
+      min-width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #28c840;
+      display: none;
+    }
+    .browser.is-playing .ext-btn .pill { display: inline-block; }
+
+    /* ---- Body: fake page + sidebar ---- */
+    .body {
+      display: flex;
+      align-items: stretch;
+      min-height: 520px;
+    }
+
+    .viewport {
+      flex: 1;
+      min-width: 0;
+      padding: 40px clamp(24px, 5vw, 64px);
+      background:
+        linear-gradient(180deg, #ffffff, #fbfbfd);
+    }
+    .viewport .eyebrow { color: var(--muted); font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+    .viewport h2 { margin: 8px 0 16px; font-size: clamp(24px, 4vw, 38px); letter-spacing: -0.02em; line-height: 1.1; }
+    .viewport p { color: #3a4150; line-height: 1.65; max-width: 60ch; }
+    .viewport .skeleton { margin-top: 28px; display: grid; gap: 12px; max-width: 560px; }
+    .viewport .skeleton i {
+      display: block; height: 12px; border-radius: 6px;
+      background: linear-gradient(90deg, #eef0f3, #e4e7ec, #eef0f3);
+    }
+    .viewport .skeleton i:nth-child(2) { width: 92%; }
+    .viewport .skeleton i:nth-child(3) { width: 78%; }
+    .viewport .skeleton i:nth-child(4) { width: 85%; }
+    .viewport .hint {
+      margin-top: 32px;
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--muted); font-size: 14px;
+    }
+    .viewport .hint kbd {
+      font: inherit; font-size: 12px;
+      padding: 2px 7px; border-radius: 6px;
+      border: 1px solid var(--chrome-border); background: #fff;
+    }
+
+    /* ---- Sidebar panel (mirrors the extension's popup.css) ---- */
+    .sidebar-panel {
+      width: 0;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: #fff;
+      border-left: 1px solid transparent;
+      transition: width .28s ease, border-color .28s ease;
+    }
+    .browser.is-open .sidebar-panel {
+      width: 320px;
+      border-left-color: var(--chrome-border);
+    }
+    @media (max-width: 720px) {
+      .browser.is-open .sidebar-panel { width: 260px; }
+      .viewport { padding: 28px 20px; }
+    }
+
+    .panel { padding: 16px; margin: 0; width: 320px; }
+    @media (max-width: 720px) { .panel { width: 260px; } }
+
+    .panel-head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .panel-head .brand {
+      width: 26px; height: 26px; border-radius: 6px;
+      display: grid; place-items: center; color: #fff; font-size: 14px;
+      background: linear-gradient(135deg, #e31b23, #f47b20);
+    }
+    .panel-head strong { font-size: 14px; }
+    .panel-head button.close {
+      margin-left: auto;
+      border: none; background: transparent; color: var(--muted);
+      font-size: 18px; line-height: 1; cursor: pointer; padding: 4px 6px; border-radius: 6px;
+    }
+    .panel-head button.close:hover { background: #f3f4f6; color: var(--ink); }
+
+    .stop {
+      width: 100%; padding: 12px 16px;
+      border: 1px solid #d1d5db; border-radius: 8px;
+      background: #f3f4f6; color: #6b7280;
+      font-size: 16px; font-weight: 500; cursor: pointer;
+      margin-bottom: 16px; transition: background-color .2s, color .2s;
+    }
+    .stop:hover:not(:disabled) { background: #e5e7eb; color: #374151; }
+    .stop:disabled { opacity: .5; cursor: not-allowed; }
+
+    .status {
+      margin: 0 0 16px 0; padding: 8px 12px; min-height: 24px;
+      font-size: 13px; color: #6b7280; text-align: center;
+    }
+
+    .stations {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 12px; margin-bottom: 16px;
+    }
+    .station-card { display: flex; flex-direction: column; gap: 8px; }
+    .station {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 8px; padding: 12px;
+      border: 1px solid #e5e7eb; border-radius: 8px; background: #fff;
+      cursor: pointer; transition: all .2s; min-height: 96px; position: relative;
+    }
+    .station:hover { border-color: #d1d5db; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+    .station.is-active { border-color: #d1d5db; box-shadow: 0 0 0 2px rgba(0,0,0,.12); }
+    .station.is-active::after {
+      content: ""; position: absolute; top: 8px; right: 8px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #28c840; box-shadow: 0 0 0 3px rgba(40,200,64,.2);
+    }
+    .station:focus-visible { outline: 2px solid #6774ff; outline-offset: 2px; }
+    .mark {
+      display: flex; align-items: center; justify-content: center;
+      width: 48px; height: 48px; border-radius: 6px;
+      background: var(--station-color, #151922); color: var(--station-text, #fff);
+      font-size: 13px; font-weight: 600; text-align: center; line-height: 1.2; padding: 4px;
+    }
+    .name { font-size: 12px; font-weight: 500; text-align: center; color: #151922; line-height: 1.3; }
+    .version { margin: 8px 0 0; font-size: 11px; color: #9ca3af; text-align: center; }
+
+    .footer {
+      margin-top: 22px; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6;
+    }
+    .footer a { color: #4b57e0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="intro">
+      <h1>Radio Stream — live demo</h1>
+      <p>A hands-on preview of the browser extension. Click the <strong>Radio Stream</strong> button in the fake toolbar to open the sidebar, then tap a station to play its real live stream.</p>
+      <span class="demo-note">Plays real live streams — a few stations use HTTP feeds that browsers block on this HTTPS page and will show “Flux indisponible”. In the actual extension they all work.</span>
+    </div>
+
+    <div class="browser" id="browser">
+      <div class="chrome">
+        <div class="dots" aria-hidden="true"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+        <div class="nav-btns" aria-hidden="true"><span>‹</span><span>›</span><span>⟳</span></div>
+        <div class="address">
+          <span class="lock" aria-hidden="true">🔒</span>
+          <span class="url">https://www.example-news.fr/culture</span>
+        </div>
+        <button class="ext-btn" id="extBtn" type="button" aria-expanded="false" aria-controls="sidebar">
+          <span class="ico" aria-hidden="true">📻</span>
+          <span>Radio Stream</span>
+          <span class="pill" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="body">
+        <div class="viewport">
+          <div class="eyebrow">Culture</div>
+          <h2>Just another page in your browser</h2>
+          <p>This panel on the right is exactly what the extension shows in your browser's sidebar. It stays out of the way while you browse, and playback keeps going as you move between tabs.</p>
+          <div class="skeleton" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <div class="hint">
+            <span>Open it from the toolbar button</span>
+            <span aria-hidden="true">↗</span>
+          </div>
+        </div>
+
+        <aside class="sidebar-panel" id="sidebar" aria-label="Radio Stream sidebar">
+          <div class="panel">
+            <div class="panel-head">
+              <span class="brand" aria-hidden="true">📻</span>
+              <strong>Radio Stream</strong>
+              <button class="close" id="closeBtn" type="button" aria-label="Close sidebar">×</button>
+            </div>
+            <button class="stop" id="stop" type="button" disabled>Stop</button>
+            <p class="status" id="status" aria-live="polite"></p>
+            <div class="stations" id="stations" aria-label="Radios"></div>
+            <p class="version">v0.3 · demo</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <p class="footer">
+      This is a demo. Get the real extension on the
+      <a href="https://github.com/jmicaux/radio-stream">GitHub repository</a>.
+    </p>
+  </div>
+
+  <script>
+    // Station list mirrors STATIONS in background.js
+    const STATIONS = [
+      { id: 'franceinter', name: 'France Inter', mark: 'Inter', streamUrl: 'https://direct.franceinter.fr/live/franceinter-midfi.mp3', siteUrl: 'https://www.radiofrance.fr/franceinter', color: '#e31b23' },
+      { id: 'rmc', name: 'RMC', mark: 'RMC', streamUrl: 'https://audio.bfmtv.com/rmcradio_128.mp3', siteUrl: 'https://rmc.bfmtv.com/', color: '#f47b20' },
+      { id: 'franceinfo', name: 'franceinfo', mark: 'Info', streamUrl: 'https://direct.franceinfo.fr/live/franceinfo-midfi.mp3', siteUrl: 'https://www.radiofrance.fr/franceinfo', color: '#f6c400', textColor: '#151922' },
+      { id: 'rtl', name: 'RTL', mark: 'RTL', streamUrl: 'https://streaming.radio.rtl.fr/rtl-1-44-128', siteUrl: 'https://www.rtl.fr/', color: '#d71920' },
+      { id: 'nrj', name: 'NRJ', mark: 'NRJ', streamUrl: 'https://streaming.nrjaudio.fm/oumvmk8fnozc?origine=fluxurlradio', siteUrl: 'https://www.nrj.fr/', color: '#111827' },
+      { id: 'nostalgie', name: 'Nostalgie', mark: 'Nost', streamUrl: 'https://streaming.nrjaudio.fm/oug7girb92oc?origine=fluxurlradio', siteUrl: 'https://www.nostalgie.fr/', color: '#d7242a' },
+      { id: 'fip', name: 'FIP', mark: 'FIP', streamUrl: 'https://icecast.radiofrance.fr/fip-hifi.aac', siteUrl: 'https://www.radiofrance.fr/fip', color: '#f05a28' },
+      { id: 'europe1', name: 'Europe 1', mark: 'E1', streamUrl: 'https://stream.europe1.fr/europe1.mp3', siteUrl: 'https://www.europe1.fr/', color: '#103f8f' },
+      { id: 'skyrock', name: 'Skyrock', mark: 'Sky', streamUrl: 'http://icecast.skyrock.net/s/natio_mp3_128k', siteUrl: 'https://skyrock.fm/', color: '#1f5fbf' },
+      { id: 'ici', name: 'ici', mark: 'ici', streamUrl: 'https://icecast.radiofrance.fr/fb1071-midfi.mp3', siteUrl: 'https://www.radiofrance.fr/ici', color: '#00a0df' },
+      { id: 'cheriefm', name: 'Chérie FM', mark: 'Chérie', streamUrl: 'https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxurlradio', siteUrl: 'https://www.cheriefm.fr/', color: '#d81b60' },
+      { id: 'rfm', name: 'RFM', mark: 'RFM', streamUrl: 'https://ais-live.cloud-services.paris:8443/rfm.mp3', siteUrl: 'https://www.rfm.fr/', color: '#dc2626' },
+      { id: 'franceculture', name: 'France Culture', mark: 'Cult', streamUrl: 'https://icecast.radiofrance.fr/franceculture-hifi.aac', siteUrl: 'https://www.radiofrance.fr/franceculture', color: '#5c2d91' },
+      { id: 'rireetchansons', name: 'Rire et Chansons', mark: 'Rire', streamUrl: 'https://streaming.nrjaudio.fm/ou8o8xgk7oiu?origine=fluxurlradio', siteUrl: 'https://www.rireetchansons.fr/', color: '#f59e0b', textColor: '#151922' },
+      { id: 'rtl2', name: 'RTL2', mark: 'RTL2', streamUrl: 'https://streaming.radio.rtl2.fr/rtl2-1-44-128', siteUrl: 'https://www.rtl2.fr/', color: '#cf112b' },
+      { id: 'radioclassique', name: 'Radio Classique', mark: 'Class', streamUrl: 'https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3', siteUrl: 'https://www.radioclassique.fr/', color: '#0f2f57' },
+      { id: 'europe2', name: 'Europe 2', mark: 'E2', streamUrl: 'https://europe2.lmn.fm/europe2.mp3', siteUrl: 'https://www.europe2.fr/', color: '#e11d48' },
+      { id: 'funradio', name: 'Fun Radio', mark: 'Fun', streamUrl: 'https://streaming.radio.funradio.fr/fun-1-44-128', siteUrl: 'https://www.funradio.fr/', color: '#7c3aed' },
+      { id: 'radiofg', name: 'Radio FG', mark: 'FG', streamUrl: 'https://radiofg.impek.com/fg.mp3', siteUrl: 'https://www.radiofg.com/', color: '#0ea5e9' },
+      { id: 'francemusique', name: 'France Musique', mark: 'Mus', streamUrl: 'https://icecast.radiofrance.fr/francemusique-hifi.aac', siteUrl: 'https://www.radiofrance.fr/francemusique', color: '#2563eb' },
+      { id: 'sudradio', name: 'Sud Radio', mark: 'Sud', streamUrl: 'https://ice.creacast.com/sudradio', siteUrl: 'https://www.sudradio.fr/', color: '#f97316' },
+      { id: 'ouifm', name: 'Oui FM', mark: 'Oui', streamUrl: 'https://ouifm.ice.infomaniak.ch/ouifm-high.mp3', siteUrl: 'https://www.ouifm.fr/', color: '#111827' },
+      { id: 'radionova', name: 'Radio Nova', mark: 'Nova', streamUrl: 'https://novazz.ice.infomaniak.ch/novazz-128.mp3', siteUrl: 'https://www.nova.fr/', color: '#eab308', textColor: '#151922' },
+      { id: 'chantefrance', name: 'Chante France', mark: 'CF', streamUrl: 'http://stream.chantefrance.com/Chante_France', siteUrl: 'https://www.chantefrance.com/', color: '#ef4444' },
+      { id: 'bfmradio', name: 'BFM Radio', mark: 'BFM', streamUrl: 'https://audio.bfmtv.com/bfmradio_128.mp3', siteUrl: 'https://www.bfmtv.com/en-direct/bfm-radio/', color: '#0055a4' },
+      { id: 'jazzradio', name: 'Jazz Radio', mark: 'Jazz', streamUrl: 'https://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3', siteUrl: 'https://www.jazzradio.fr/', color: '#7f1d1d' },
+      { id: 'generations', name: 'Générations', mark: 'Gen', streamUrl: 'https://generationfm.ice.infomaniak.ch/generationfm-high.mp3', siteUrl: 'https://generations.fr/', color: '#16a34a' },
+      { id: 'outremer1ere', name: 'Outre-Mer la 1ère', mark: '1ère', streamUrl: 'http://outremer.ice.infomaniak.ch/outremer-192.aac?aw_0_1st.rpfr=1', siteUrl: 'https://la1ere.francetvinfo.fr/', color: '#0f766e' },
+      { id: 'rciguadeloupe', name: 'RCI Guadeloupe', mark: 'RCI', streamUrl: 'https://stream.rcs.revma.com/v4hf7bwspwzuv', siteUrl: 'https://www.rci.fm/guadeloupe/', color: '#0f4c81' },
+      { id: 'bfmbusiness', name: 'BFM Business', mark: 'Biz', streamUrl: 'https://audio.bfmtv.com/bfmbusiness_128.mp3', siteUrl: 'https://www.bfmtv.com/economie/', color: '#003b73' }
+    ];
+
+    const browserEl = document.getElementById('browser');
+    const extBtn = document.getElementById('extBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const stationsNode = document.getElementById('stations');
+    const stopButton = document.getElementById('stop');
+    const statusNode = document.getElementById('status');
+
+    let audio = null;
+    let currentStationId = null;
+    let status = 'stopped';
+
+    function setStatus(message) { statusNode.textContent = message || ''; }
+
+    function renderPlaybackState() {
+      const isActive = status === 'playing' || status === 'loading';
+      const station = STATIONS.find((s) => s.id === currentStationId);
+
+      document.querySelectorAll('.station').forEach((button) => {
+        const active = button.dataset.stationId === currentStationId && isActive;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', String(active));
+      });
+
+      stopButton.disabled = !isActive;
+      browserEl.classList.toggle('is-playing', status === 'playing');
+
+      if (status === 'loading') { setStatus(station ? 'Connexion à ' + station.name + '…' : 'Connexion…'); return; }
+      if (status === 'playing') { setStatus(station ? station.name : ''); return; }
+      if (status === 'error') { setStatus('Flux indisponible.'); return; }
+      setStatus('');
+    }
+
+    function stopAudio() {
+      if (audio) {
+        audio.pause();
+        audio.removeAttribute('src');
+        audio.load();
+        audio = null;
+      }
+      currentStationId = null;
+      status = 'stopped';
+      renderPlaybackState();
+    }
+
+    function playStation(station) {
+      if (status === 'playing' && currentStationId === station.id) { stopAudio(); return; }
+
+      stopAudio();
+      currentStationId = station.id;
+      status = 'loading';
+      renderPlaybackState();
+
+      audio = new Audio(station.streamUrl);
+      audio.preload = 'none';
+      audio.addEventListener('playing', () => { status = 'playing'; renderPlaybackState(); });
+      audio.addEventListener('pause', () => { if (audio) stopAudio(); });
+      audio.addEventListener('error', () => { status = 'error'; renderPlaybackState(); });
+      audio.play().catch(() => { status = 'error'; renderPlaybackState(); });
+    }
+
+    function createStationCard(station) {
+      const card = document.createElement('div');
+      card.className = 'station-card';
+      card.style.setProperty('--station-color', station.color);
+      if (station.textColor) card.style.setProperty('--station-text', station.textColor);
+
+      const button = document.createElement('button');
+      button.className = 'station';
+      button.type = 'button';
+      button.dataset.stationId = station.id;
+      button.setAttribute('aria-pressed', 'false');
+
+      const mark = document.createElement('span');
+      mark.className = 'mark';
+      mark.textContent = station.mark || station.name;
+      mark.setAttribute('aria-hidden', 'true');
+
+      const name = document.createElement('span');
+      name.className = 'name';
+      name.textContent = station.name;
+
+      button.append(mark, name);
+      button.addEventListener('click', () => playStation(station));
+      card.append(button);
+      return card;
+    }
+
+    STATIONS.forEach((station) => stationsNode.append(createStationCard(station)));
+    stopButton.addEventListener('click', stopAudio);
+
+    function setOpen(open) {
+      browserEl.classList.toggle('is-open', open);
+      extBtn.setAttribute('aria-expanded', String(open));
+      if (open) {
+        const first = stationsNode.querySelector('.station');
+        if (first) first.focus();
+      } else {
+        extBtn.focus();
+      }
+    }
+
+    extBtn.addEventListener('click', () => setOpen(!browserEl.classList.contains('is-open')));
+    closeBtn.addEventListener('click', () => setOpen(false));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && browserEl.classList.contains('is-open')) setOpen(false);
+    });
+
+    // Open the panel by default so the demo is immediately visible.
+    setOpen(true);
+    extBtn.focus();
+  </script>
+</body>
+</html>
