@@ -8,6 +8,8 @@ stoppable without focusing a hidden player tab.
 
 **🔗 Live preview: [jmicaux.github.io/radio-stream](https://jmicaux.github.io/radio-stream/)**
 
+![Radio Stream — the sidebar player with French radio station tiles](screenshot.png)
+
 If you enjoy this extension, you can support it:
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_me_a_coffee-ffdd00?style=flat-square&logo=buymeacoffee&logoColor=1a1a1a)](https://buymeacoffee.com/jmicaux)
