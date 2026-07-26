@@ -71,4 +71,14 @@ Chrome release artifacts are mirrored in `releases/v0.3/chrome/` for symmetry wi
 - Local usage sorting is stored in the browser with `storage.local`.
 - The `Stop` button stops the current stream.
 - Playback is controlled from the sidebar.
+
+## License
+
+Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md): you are free to fork,
+modify and share this project **for noncommercial purposes**, as long as you keep the
+attribution (`Required Notice: Copyright jmicaux`). Commercial use is not permitted.
+
+## Credits
+
+Built with the help of [Claude](https://claude.ai/code).
 - Firefox update manifests use the add-on ID `radio-stream@jmicaux.github.io`.
