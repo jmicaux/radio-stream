@@ -4,7 +4,9 @@ Browser extension to play popular French live radio streams from the browser sid
 
 Chrome / Chromium and Firefox use the browser sidebar so playback remains integrated and stoppable without focusing a hidden player tab.
 
-If you enjoy this extension, you can [buy me a coffee ☕](https://buymeacoffee.com/jmicaux).
+If you enjoy this extension, you can support it:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy_me_a_coffee-ffdd00?style=flat-square&logo=buymeacoffee&logoColor=1a1a1a)](https://buymeacoffee.com/jmicaux)
 
 ## Radios
 
