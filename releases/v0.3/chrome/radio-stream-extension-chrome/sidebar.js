@@ -52,8 +52,7 @@ function renderPlaybackState() {
     button.setAttribute('aria-pressed', String(active));
   });
 
-  stopButton.disabled = !isActive;
-  stopButton.textContent = isActive ? 'Stop' : 'Stop';
+  stopButton.setAttribute('aria-disabled', String(!isActive));
 
   if (status === 'loading') {
     setStatus(station ? 'Connexion à ' + station.name + '...' : 'Connexion...');
@@ -154,7 +153,12 @@ function renderStations(state) {
   renderPlaybackState();
 }
 
-stopButton.addEventListener('click', stopAudio);
+stopButton.addEventListener('click', () => {
+  if (stopButton.getAttribute('aria-disabled') === 'true') {
+    return;
+  }
+  stopAudio();
+});
 
 sendMessage({ type: 'GET_STATE' })
   .then(renderStations)
