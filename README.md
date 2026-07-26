@@ -78,7 +78,16 @@ Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md): you are f
 modify and share this project **for noncommercial purposes**, as long as you keep the
 attribution (`Required Notice: Copyright jmicaux`). Commercial use is not permitted.
 
+## Stream sources
+
+Audio comes from each station's own **public live stream**, served directly from the
+broadcaster's infrastructure (Radio France Icecast, RTL / RTL2 / Fun Radio, the NRJ group,
+Europe 1, Skyrock, BFM, Infomaniak, …). The extension only plays those public streams — it
+does not host, proxy or rebroadcast any audio. Stream URLs can change over time; if a
+station stops playing, its stream URL likely needs updating in `background.js`.
+
+Not affiliated with, endorsed by, or certified by any radio station or broadcaster.
+
 ## Credits
 
 Built with the help of [Claude](https://claude.ai/code).
-- Firefox update manifests use the add-on ID `radio-stream@jmicaux.github.io`.
