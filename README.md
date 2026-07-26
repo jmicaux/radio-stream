@@ -6,6 +6,8 @@ stoppable without focusing a hidden player tab.
 
 ![version](https://img.shields.io/badge/version-0.3-blue) ![vanilla](https://img.shields.io/badge/stack-vanilla_JS-f7df1e) ![no build](https://img.shields.io/badge/build-none-brightgreen) ![manifest](https://img.shields.io/badge/manifest-v3-8b5cf6) ![browsers](https://img.shields.io/badge/browsers-Chrome_+_Firefox-3b82f6)
 
+**🔗 Live preview: [jmicaux.github.io/radio-stream](https://jmicaux.github.io/radio-stream/)**
+
 If you enjoy this extension, you can support it:
 
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy_me_a_coffee-ffdd00?style=flat-square&logo=buymeacoffee&logoColor=1a1a1a)](https://buymeacoffee.com/jmicaux)
