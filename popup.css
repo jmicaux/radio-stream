@@ -38,14 +38,20 @@ body {
   transition: background-color 0.2s, color 0.2s;
 }
 
-.stop:hover:not(:disabled) {
+.stop:hover:not([aria-disabled="true"]) {
   background: #e5e7eb;
   color: #374151;
 }
 
-.stop:disabled {
+.stop[aria-disabled="true"] {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.stop:focus-visible,
+.station:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
 }
 
 .status {
