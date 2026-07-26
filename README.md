@@ -4,7 +4,7 @@ Browser extension to play popular French live radio streams from the browser sid
 Chrome / Chromium and Firefox use the browser sidebar so playback remains integrated and
 stoppable without focusing a hidden player tab.
 
-![version](https://img.shields.io/badge/version-0.3-blue) ![vanilla](https://img.shields.io/badge/stack-vanilla_JS-f7df1e) ![no build](https://img.shields.io/badge/build-none-brightgreen) ![manifest](https://img.shields.io/badge/manifest-v3-8b5cf6) ![browsers](https://img.shields.io/badge/browsers-Chrome_+_Firefox-3b82f6)
+[![CI](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml/badge.svg)](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.3-blue) ![vanilla](https://img.shields.io/badge/stack-vanilla_JS-f7df1e) ![no build](https://img.shields.io/badge/build-none-brightgreen) ![manifest](https://img.shields.io/badge/manifest-v3-8b5cf6) ![browsers](https://img.shields.io/badge/browsers-Chrome_+_Firefox-3b82f6)
 
 **🔗 Live preview: [jmicaux.github.io/radio-stream](https://jmicaux.github.io/radio-stream/)**
 
