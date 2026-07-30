@@ -72,6 +72,9 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Fixed height so the slot is always reserved: showing/hiding the bar never
+     shifts the station grid (avoids layout shift / CLS). */
+  min-height: 46px;
   padding: 8px 10px;
   margin-bottom: 12px;
   border: 1px solid #e5e7eb;
@@ -79,8 +82,10 @@ body {
   background: #f9fafb;
 }
 
-.nowplaying[hidden] {
-  display: none;
+/* Idle: keep the reserved space but render nothing (and drop it from the tab
+   order) until a station is loading/playing/errored. */
+.nowplaying[data-state="stopped"] {
+  visibility: hidden;
 }
 
 .np-dot {

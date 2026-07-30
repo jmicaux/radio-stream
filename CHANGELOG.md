@@ -4,6 +4,14 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.5] — 2026-07-30
+
+### Fixed
+- No more layout shift (CLS) when starting a station. The "now playing" bar used
+  to be `display:none` when idle and pushed the station grid down when it
+  appeared; its slot is now permanently reserved (fixed height) and simply
+  rendered invisible while idle, so the tiles never move.
+
 ## [0.4.4] — 2026-07-30
 
 ### Changed

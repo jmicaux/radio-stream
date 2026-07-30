@@ -29,6 +29,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.5', date: '2026-07-30', changes: ['Plus de saut de mise en page (CLS) au lancement d’une radio : la zone « en lecture » est désormais réservée en permanence, les tuiles ne bougent plus.'] },
   { version: '0.4.4', date: '2026-07-30', changes: ['Le bouton « Rafraîchir » a maintenant un effet visible : il reconnecte le flux en cours (utile si le son se fige), re-trie la liste par écoutes et l’icône tourne le temps de l’opération.'] },
   { version: '0.4.3', date: '2026-07-30', changes: ['Le bouton « Détacher » ne crée plus de doublons : s’il existe déjà une fenêtre, un nouveau clic la ramène au premier plan.', 'La fenêtre détachée est entièrement redimensionnable : le contenu remplit toute la fenêtre et la grille ajuste ses colonnes.'] },
   { version: '0.4.2', date: '2026-07-30', changes: ['Flux France Inter, franceinfo, Europe 1, RFM et Chante France pointés directement sur leur hôte final (une redirection en moins à chaque lecture ; Chante France passe en HTTPS).'] },
@@ -127,15 +128,9 @@ function renderPlaybackState() {
     button.setAttribute('aria-pressed', String(active));
   });
 
-  // The "now playing" bar (with the stop control) only exists while a station
-  // is loading, playing, or errored; otherwise the stations sit at the top.
-  const barVisible = status === 'loading' || status === 'playing' || status === 'error';
-  nowplayingNode.hidden = !barVisible;
-  if (barVisible) {
-    nowplayingNode.setAttribute('data-state', status);
-  } else {
-    nowplayingNode.removeAttribute('data-state');
-  }
+  // The "now playing" bar keeps its reserved height at all times (no layout
+  // shift); the "stopped" state just renders it invisible via CSS.
+  nowplayingNode.setAttribute('data-state', status);
 
   if (status === 'loading') {
     setActionBadge('...', station ? station.color : '#737373');

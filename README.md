@@ -4,7 +4,7 @@ Browser extension to play popular French live radio streams from the browser sid
 Chrome / Chromium and Firefox use the browser sidebar so playback remains integrated and
 stoppable without focusing a hidden player tab.
 
-[![CI](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml/badge.svg)](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.4.4-blue) ![vanilla](https://img.shields.io/badge/stack-vanilla_JS-f7df1e) ![no build](https://img.shields.io/badge/build-none-brightgreen) ![manifest](https://img.shields.io/badge/manifest-v3-8b5cf6) ![browsers](https://img.shields.io/badge/browsers-Chrome_+_Firefox-3b82f6)
+[![CI](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml/badge.svg)](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.4.5-blue) ![vanilla](https://img.shields.io/badge/stack-vanilla_JS-f7df1e) ![no build](https://img.shields.io/badge/build-none-brightgreen) ![manifest](https://img.shields.io/badge/manifest-v3-8b5cf6) ![browsers](https://img.shields.io/badge/browsers-Chrome_+_Firefox-3b82f6)
 
 **🔗 Live preview: [jmicaux.github.io/radio-stream](https://jmicaux.github.io/radio-stream/)**
 
@@ -62,8 +62,8 @@ If you enjoy this extension, you can support it:
 
 Grab the latest packaged build from the [releases page](https://github.com/jmicaux/radio-stream/releases/latest):
 
-- **Chrome / Chromium:** [radio-stream-extension-chrome.zip](https://github.com/jmicaux/radio-stream/releases/download/v0.4.4/radio-stream-extension-chrome.zip)
-- **Firefox:** [radio-stream-firefox-v0.4.4.xpi](https://github.com/jmicaux/radio-stream/releases/download/v0.4.4/radio-stream-firefox-v0.4.4.xpi) — or the [.zip variant](https://github.com/jmicaux/radio-stream/releases/download/v0.4.4/radio-stream-firefox-v0.4.4.zip) if your browser tries to install the `.xpi` directly instead of downloading it.
+- **Chrome / Chromium:** [radio-stream-extension-chrome.zip](https://github.com/jmicaux/radio-stream/releases/download/v0.4.5/radio-stream-extension-chrome.zip)
+- **Firefox:** [radio-stream-firefox-v0.4.5.xpi](https://github.com/jmicaux/radio-stream/releases/download/v0.4.5/radio-stream-firefox-v0.4.5.xpi) — or the [.zip variant](https://github.com/jmicaux/radio-stream/releases/download/v0.4.5/radio-stream-firefox-v0.4.5.zip) if your browser tries to install the `.xpi` directly instead of downloading it.
 
 ## Install & usage
 
@@ -72,7 +72,7 @@ Grab the latest packaged build from the [releases page](https://github.com/jmica
 1. Open `about:debugging#/runtime/this-firefox`.
 2. Click `Load Temporary Add-on...`.
 3. For source testing, select `manifest.firefox.json` from this project folder.
-4. For packaged testing, use `dist/v0.4.4/firefox/radio-stream-extension-firefox.zip`.
+4. For packaged testing, use `dist/v0.4.5/firefox/radio-stream-extension-firefox.zip`.
 
 The Firefox add-on is distributed through [addons.mozilla.org](https://addons.mozilla.org/) (AMO), which handles updates.
 
@@ -82,9 +82,9 @@ The Firefox add-on is distributed through [addons.mozilla.org](https://addons.mo
 2. Enable `Developer mode`.
 3. Click `Load unpacked`.
 4. Select this project folder.
-5. For packaged testing, use `dist/v0.4.4/chrome/radio-stream-extension-chrome.zip`.
+5. For packaged testing, use `dist/v0.4.5/chrome/radio-stream-extension-chrome.zip`.
 
-Chrome release artifacts are mirrored in `releases/v0.4.4/chrome/` for symmetry with Firefox.
+Chrome release artifacts are mirrored in `releases/v0.4.5/chrome/` for symmetry with Firefox.
 
 ## Project structure
 
