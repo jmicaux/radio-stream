@@ -106,12 +106,6 @@ This project follows a documented quality review process covering accessibility,
 
 See [QUALITY.md](QUALITY.md).
 
-## License
-
-Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE.md): you are free to fork,
-modify and share this project **for noncommercial purposes**, as long as you keep the
-attribution (`Required Notice: Copyright jmicaux`). Commercial use is not permitted.
-
 ## Credits
 
 Audio is streamed directly from each station's own public live stream (Radio France, RTL /
