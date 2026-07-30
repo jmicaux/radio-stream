@@ -2,6 +2,8 @@ const api = typeof browser !== 'undefined' ? browser : chrome;
 const stationsNode = document.getElementById('stations');
 const stopButton = document.getElementById('stop');
 const statusNode = document.getElementById('status');
+const refreshButton = document.getElementById('refresh');
+const versionNode = document.getElementById('version');
 
 let audio = null;
 let stations = [];
@@ -179,8 +181,30 @@ stopButton.addEventListener('click', () => {
   stopAudio();
 });
 
-sendMessage({ type: 'GET_STATE' })
-  .then(renderStations)
-  .catch(() => {
-    setStatus('Impossible de charger les stations.');
-  });
+let refreshing = false;
+
+function refreshStations() {
+  if (refreshing) {
+    return;
+  }
+  refreshing = true;
+  refreshButton.classList.add('is-refreshing');
+
+  return sendMessage({ type: 'GET_STATE' })
+    .then(renderStations)
+    .catch(() => {
+      setStatus('Impossible de charger les stations.');
+    })
+    .then(() => {
+      refreshing = false;
+      refreshButton.classList.remove('is-refreshing');
+    });
+}
+
+refreshButton.addEventListener('click', refreshStations);
+
+if (versionNode && api.runtime && typeof api.runtime.getManifest === 'function') {
+  versionNode.textContent = 'v' + api.runtime.getManifest().version;
+}
+
+refreshStations();

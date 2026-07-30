@@ -4,6 +4,17 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.5] — 2026-07-30
+
+### Added
+- Discreet refresh button in the sidebar toolbar to reload the station list
+  (spins while refreshing; respects reduced-motion). Playback is not
+  interrupted.
+
+### Fixed
+- The version shown at the bottom of the sidebar is now read from the manifest
+  instead of a hard-coded `v0.3`.
+
 ## [0.3.4] — 2026-07-30
 
 ### Changed
