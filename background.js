@@ -28,7 +28,7 @@ const STATIONS = [
     id: 'rtl',
     name: 'RTL',
     mark: 'RTL',
-    streamUrl: 'https://streaming.radio.rtl.fr/rtl-1-44-128',
+    streamUrl: 'https://icecast.rtl.fr/rtl-1-44-128',
     siteUrl: 'https://www.rtl.fr/',
     color: '#d71920'
   },
@@ -92,7 +92,7 @@ const STATIONS = [
     id: 'rfm',
     name: 'RFM',
     mark: 'RFM',
-    streamUrl: 'https://ais-live.cloud-services.paris:8443/rfm.mp3',
+    streamUrl: 'https://stream.rfm.fr/rfm.mp3',
     siteUrl: 'https://www.rfm.fr/',
     color: '#dc2626'
   },
@@ -117,7 +117,7 @@ const STATIONS = [
     id: 'rtl2',
     name: 'RTL2',
     mark: 'RTL2',
-    streamUrl: 'https://streaming.radio.rtl2.fr/rtl2-1-44-128',
+    streamUrl: 'https://icecast.rtl2.fr/rtl2-1-44-128',
     siteUrl: 'https://www.rtl2.fr/',
     color: '#cf112b'
   },
@@ -141,7 +141,7 @@ const STATIONS = [
     id: 'funradio',
     name: 'Fun Radio',
     mark: 'Fun',
-    streamUrl: 'https://streaming.radio.funradio.fr/fun-1-44-128',
+    streamUrl: 'https://icecast.funradio.fr/fun-1-44-128',
     siteUrl: 'https://www.funradio.fr/',
     color: '#7c3aed'
   },

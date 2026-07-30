@@ -15,16 +15,13 @@
     "128": "assets/icon-128.png"
   },
   "host_permissions": [
-    "https://streaming.radio.rtl.fr/*",
     "https://*.rtl.fr/*",
     "https://*.rtl2.fr/*",
     "https://*.funradio.fr/*",
-    "https://streaming.radio.rtl2.fr/*",
-    "https://streaming.radio.funradio.fr/*",
     "https://stream.europe1.fr/*",
     "https://*.lmn.fm/*",
     "http://*.lmn.fm/*",
-    "https://ais-live.cloud-services.paris/*",
+    "https://*.rfm.fr/*",
     "http://chai5she.cdn.dvmr.fr/*",
     "https://chai5she.cdn.dvmr.fr/*",
     "https://audio.bfmtv.com/*",
