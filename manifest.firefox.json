@@ -1,11 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Radio Stream",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Play French radio live audio streams from the extension.",
   "permissions": [
-    "storage",
-    "power"
+    "storage"
   ],
   "icons": {
     "16": "assets/icon-16.png",
@@ -65,7 +64,9 @@
   "browser_specific_settings": {
     "gecko": {
       "id": "radio-stream@jmicaux.github.io",
-      "update_url": "https://raw.githubusercontent.com/jmicaux/radio-stream/main/releases/v0.3.3/firefox/updates.json"
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   }
 }
