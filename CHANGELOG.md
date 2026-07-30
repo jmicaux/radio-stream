@@ -4,6 +4,14 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] — 2026-07-30
+
+### Fixed
+- Updated 4 broken stream URLs that returned "flux indisponible": RTL, RTL2 and
+  Fun Radio moved from `streaming.radio.*.fr` to `icecast.*.fr`, and RFM moved to
+  `stream.rfm.fr`. URLs verified live.
+- Cleaned up `host_permissions` in both manifests (added `*.rfm.fr`, removed dead hosts).
+
 ## [0.3] — 2026-07-26
 
 ### Added
