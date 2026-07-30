@@ -4,6 +4,15 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.9] — 2026-07-30
+
+### Changed
+- Optimized the top of the sidebar. Removed the in-panel app title (the browser
+  already labels the sidebar), leaving a single slim row (tagline + version +
+  refresh). The Stop control is no longer a large always-on button: a compact
+  "now playing" bar (state dot + station name + stop) appears only while a
+  station is loading/playing, so stations sit at the top when idle.
+
 ## [0.3.8] — 2026-07-30
 
 ### Changed

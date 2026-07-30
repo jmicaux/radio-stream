@@ -2,6 +2,7 @@ const api = typeof browser !== 'undefined' ? browser : chrome;
 const stationsNode = document.getElementById('stations');
 const stopButton = document.getElementById('stop');
 const statusNode = document.getElementById('status');
+const nowplayingNode = document.getElementById('nowplaying');
 const refreshButton = document.getElementById('refresh');
 const versionNode = document.getElementById('version');
 const changelogOverlay = document.getElementById('changelog');
@@ -10,6 +11,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.3.9', date: '2026-07-30', changes: ['Haut de la sidebar optimisé : titre en double retiré, et le bouton d’arrêt n’apparaît plus que pendant la lecture (barre « en lecture » compacte).'] },
   { version: '0.3.8', date: '2026-07-30', changes: ['En-tête épuré : titre, description et version regroupés sur une ligne.'] },
   { version: '0.3.7', date: '2026-07-30', changes: ['Numéro de version déplacé dans l’en-tête, cliquable pour afficher les nouveautés.'] },
   { version: '0.3.6', date: '2026-07-30', changes: ['Classement par usage rétabli : les radios les plus écoutées remontent en tête.'] },
@@ -85,11 +87,19 @@ function renderPlaybackState() {
     button.setAttribute('aria-pressed', String(active));
   });
 
-  stopButton.setAttribute('aria-disabled', String(!isActive));
+  // The "now playing" bar (with the stop control) only exists while a station
+  // is loading, playing, or errored; otherwise the stations sit at the top.
+  const barVisible = status === 'loading' || status === 'playing' || status === 'error';
+  nowplayingNode.hidden = !barVisible;
+  if (barVisible) {
+    nowplayingNode.setAttribute('data-state', status);
+  } else {
+    nowplayingNode.removeAttribute('data-state');
+  }
 
   if (status === 'loading') {
     setActionBadge('...', station ? station.color : '#737373');
-    setStatus(station ? 'Connexion à ' + station.name + '...' : 'Connexion...');
+    setStatus(station ? 'Connexion à ' + station.name + '…' : 'Connexion…');
     return;
   }
 
@@ -199,9 +209,6 @@ function renderStations(state) {
 }
 
 stopButton.addEventListener('click', () => {
-  if (stopButton.getAttribute('aria-disabled') === 'true') {
-    return;
-  }
   stopAudio();
 });
 

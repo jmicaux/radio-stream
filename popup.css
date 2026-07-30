@@ -27,39 +27,22 @@ body {
 .toolbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
-  margin-bottom: 8px;
-}
-
-.brand {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  flex: 1;
-  min-width: 0;
-}
-
-.brand-title {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: #151922;
-  white-space: nowrap;
-  flex-shrink: 0;
+  margin-bottom: 12px;
 }
 
 .brand-tagline {
-  font-size: 11px;
-  color: #9ca3af;
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #151922;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
 }
 
 .version-badge {
-  margin-left: auto;
   padding: 0;
   border: none;
   background: transparent;
@@ -80,6 +63,84 @@ body {
 }
 
 .version-badge:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* "Now playing" bar — only visible while a station is loading/playing/errored. */
+.nowplaying {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.nowplaying[hidden] {
+  display: none;
+}
+
+.np-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #9ca3af;
+  flex-shrink: 0;
+}
+
+.nowplaying[data-state="playing"] .np-dot {
+  background: #16a34a;
+}
+
+.nowplaying[data-state="loading"] .np-dot {
+  animation: np-pulse 1s ease-in-out infinite;
+}
+
+.nowplaying[data-state="error"] .np-dot {
+  background: #b3261e;
+}
+
+@keyframes np-pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.np-status {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.np-stop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.np-stop:hover {
+  color: #b3261e;
+  background: #f3f4f6;
+}
+
+.np-stop:focus-visible {
   outline: 3px solid #2563eb;
   outline-offset: 2px;
 }
@@ -119,43 +180,9 @@ body {
   }
 }
 
-.stop {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #f3f4f6;
-  color: #586070;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  margin-bottom: 16px;
-  transition: background-color 0.2s, color 0.2s;
-}
-
-.stop:hover:not([aria-disabled="true"]) {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.stop[aria-disabled="true"] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.stop:focus-visible,
 .station:focus-visible {
   outline: 3px solid #2563eb;
   outline-offset: 2px;
-}
-
-.status {
-  margin: 0 0 16px 0;
-  padding: 8px 12px;
-  min-height: 24px;
-  font-size: 13px;
-  color: #6b7280;
-  text-align: center;
 }
 
 .stations {
