@@ -4,6 +4,15 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.6] — 2026-07-30
+
+### Fixed
+- Usage-based ordering works again. Playback had moved into the sidebar and no
+  longer told the background to record plays, so the order never changed. The
+  sidebar now sends a `RECORD_USAGE` message once a station actually starts, and
+  the background persists it. The new order applies on the next refresh/reopen
+  (tiles are not reshuffled mid-playback).
+
 ## [0.3.5] — 2026-07-30
 
 ### Added

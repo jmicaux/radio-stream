@@ -824,6 +824,13 @@ api.runtime.onMessage.addListener((message) => {
     return getState();
   }
 
+  if (message.type === 'RECORD_USAGE') {
+    if (!message.stationId) {
+      return getState();
+    }
+    return recordUsage(message.stationId).then(getState);
+  }
+
   if (message.type === 'STOP') {
     stopStream();
     return getState();

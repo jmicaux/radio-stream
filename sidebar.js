@@ -106,9 +106,17 @@ function playStation(station) {
 
   audio = new Audio(station.streamUrl);
   audio.preload = 'none';
+  let usageRecorded = false;
   audio.addEventListener('playing', () => {
     status = 'playing';
     renderPlaybackState();
+    // Count the play once it actually starts, so usage-based ordering reflects
+    // real listening. The new order applies on the next refresh/reopen rather
+    // than reshuffling tiles mid-playback.
+    if (!usageRecorded) {
+      usageRecorded = true;
+      sendMessage({ type: 'RECORD_USAGE', stationId: station.id }).catch(() => {});
+    }
   });
   audio.addEventListener('pause', () => {
     if (audio) {
