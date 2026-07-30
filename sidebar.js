@@ -11,6 +11,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.3.10', date: '2026-07-30', changes: ['Bouton « Arrêter » plus lisible (icône + libellé, contraste renforcé) et contrastes de l’en-tête ajustés (accessibilité).'] },
   { version: '0.3.9', date: '2026-07-30', changes: ['Haut de la sidebar optimisé : titre en double retiré, et le bouton d’arrêt n’apparaît plus que pendant la lecture (barre « en lecture » compacte).'] },
   { version: '0.3.8', date: '2026-07-30', changes: ['En-tête épuré : titre, description et version regroupés sur une ligne.'] },
   { version: '0.3.7', date: '2026-07-30', changes: ['Numéro de version déplacé dans l’en-tête, cliquable pour afficher les nouveautés.'] },
