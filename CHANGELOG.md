@@ -4,6 +4,12 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.2] — 2026-07-30
+
+### Fixed
+- The `Site` link under each station is now visible again (it was hidden by a
+  `display: none` rule), so you can open a station's website from the sidebar.
+
 ## [0.3.1] — 2026-07-30
 
 ### Fixed
