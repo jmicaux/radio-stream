@@ -29,6 +29,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.4', date: '2026-07-30', changes: ['Le bouton « Rafraîchir » a maintenant un effet visible : il reconnecte le flux en cours (utile si le son se fige), re-trie la liste par écoutes et l’icône tourne le temps de l’opération.'] },
   { version: '0.4.3', date: '2026-07-30', changes: ['Le bouton « Détacher » ne crée plus de doublons : s’il existe déjà une fenêtre, un nouveau clic la ramène au premier plan.', 'La fenêtre détachée est entièrement redimensionnable : le contenu remplit toute la fenêtre et la grille ajuste ses colonnes.'] },
   { version: '0.4.2', date: '2026-07-30', changes: ['Flux France Inter, franceinfo, Europe 1, RFM et Chante France pointés directement sur leur hôte final (une redirection en moins à chaque lecture ; Chante France passe en HTTPS).'] },
   { version: '0.4.1', date: '2026-07-30', changes: ['Correctif perf : l’arrêt coupe réellement le flux (fini le téléchargement en arrière-plan et les connexions qui s’empilaient à chaque relance).', 'Icônes « Détacher » et « Rafraîchir » alignées sur le toolkit.'] },
@@ -164,6 +165,12 @@ function playStation(station) {
     return;
   }
 
+  startPlayback(station);
+}
+
+// Actually (re)connect a station's stream, bypassing the play/stop toggle so it
+// can also be used to reconnect the station that is already playing.
+function startPlayback(station) {
   teardownAudio();
   currentStationId = station.id;
   status = 'loading';
@@ -269,16 +276,30 @@ let refreshing = false;
 
 function refreshStations() {
   if (refreshing) {
-    return;
+    return Promise.resolve();
   }
   refreshing = true;
   refreshButton.classList.add('is-refreshing');
 
+  // Reconnect the current stream too, so refresh also recovers a stalled feed.
+  const replayId = (status === 'playing' || status === 'loading') ? currentStationId : null;
+  // Keep the spinner visible long enough to read, even though GET_STATE is instant.
+  const minSpin = new Promise((resolve) => setTimeout(resolve, 600));
+
   return sendMessage({ type: 'GET_STATE' })
     .then(renderStations)
+    .then(() => {
+      if (replayId) {
+        const station = stations.find((item) => item.id === replayId);
+        if (station) {
+          startPlayback(station);
+        }
+      }
+    })
     .catch(() => {
       setStatus('Impossible de charger les stations.');
     })
+    .then(() => minSpin)
     .then(() => {
       refreshing = false;
       refreshButton.classList.remove('is-refreshing');

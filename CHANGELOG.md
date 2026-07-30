@@ -4,6 +4,14 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.4] — 2026-07-30
+
+### Changed
+- The refresh button now has a visible, useful effect: besides re-sorting the
+  list by play count, it reconnects the currently playing stream (recovers a
+  stalled feed) and the icon spins for a guaranteed short duration so the action
+  is perceptible even though the state fetch is instant.
+
 ## [0.4.3] — 2026-07-30
 
 ### Fixed
