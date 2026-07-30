@@ -58,7 +58,7 @@ If you enjoy this extension, you can support it:
 
 ## Download
 
-Grab the latest packaged build from the [releases page](https://github.com/jmicaux/radio-stream/releases/latest) (use the **Assets** links, not the file's `blob` page):
+Grab the latest packaged build from the [releases page](https://github.com/jmicaux/radio-stream/releases/latest):
 
 - **Chrome / Chromium:** [radio-stream-extension-chrome.zip](https://github.com/jmicaux/radio-stream/releases/download/v0.3.2/radio-stream-extension-chrome.zip)
 - **Firefox:** [radio-stream-firefox-v0.3.2.xpi](https://github.com/jmicaux/radio-stream/releases/download/v0.3.2/radio-stream-firefox-v0.3.2.xpi) — or the [.zip variant](https://github.com/jmicaux/radio-stream/releases/download/v0.3.2/radio-stream-firefox-v0.3.2.zip) if your browser tries to install the `.xpi` directly instead of downloading it.
