@@ -29,6 +29,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.1', date: '2026-07-30', changes: ['Correctif perf : l’arrêt coupe réellement le flux (fini le téléchargement en arrière-plan et les connexions qui s’empilaient à chaque relance).', 'Icônes « Détacher » et « Rafraîchir » alignées sur le toolkit.'] },
   { version: '0.4.0', date: '2026-07-30', changes: ['Nouveau bouton « Détacher » : ouvre le lecteur dans une fenêtre séparée pour continuer l’écoute même en fermant la sidebar (la station en cours est reprise).'] },
   { version: '0.3.10', date: '2026-07-30', changes: ['Bouton « Arrêter » plus lisible (icône + libellé, contraste renforcé) et contrastes de l’en-tête ajustés (accessibilité).'] },
   { version: '0.3.9', date: '2026-07-30', changes: ['Haut de la sidebar optimisé : titre en double retiré, et le bouton d’arrêt n’apparaît plus que pendant la lecture (barre « en lecture » compacte).'] },
@@ -85,13 +86,29 @@ function setActionBadge(text, color) {
   }
 }
 
-function stopAudio() {
-  if (audio) {
-    audio.pause();
-    audio.removeAttribute('src');
-    audio = null;
+// Fully release the current <audio> element AND abort its network request.
+// pause() + removeAttribute('src') alone does NOT stop the ongoing download —
+// the media element keeps buffering until load() runs its resource-reset
+// algorithm. We also detach listeners so a stale element can't drive the UI.
+function teardownAudio() {
+  if (!audio) {
+    return;
   }
+  const el = audio;
+  audio = null;
+  el.onplaying = null;
+  el.onerror = null;
+  try {
+    el.pause();
+  } catch (error) {
+    /* ignore */
+  }
+  el.removeAttribute('src');
+  el.load();
+}
 
+function stopAudio() {
+  teardownAudio();
   currentStationId = null;
   status = 'stopped';
   renderPlaybackState();
@@ -145,15 +162,22 @@ function playStation(station) {
     return;
   }
 
-  stopAudio();
+  teardownAudio();
   currentStationId = station.id;
   status = 'loading';
   renderPlaybackState();
 
-  audio = new Audio(station.streamUrl);
-  audio.preload = 'none';
+  const el = new Audio(station.streamUrl);
+  audio = el;
+  el.preload = 'none';
   let usageRecorded = false;
-  audio.addEventListener('playing', () => {
+
+  // All handlers are no-ops once `el` is no longer the current element, so a
+  // superseded stream can never drive the UI or re-trigger a stop.
+  el.onplaying = () => {
+    if (audio !== el) {
+      return;
+    }
     status = 'playing';
     renderPlaybackState();
     // Count the play once it actually starts, so usage-based ordering reflects
@@ -163,18 +187,19 @@ function playStation(station) {
       usageRecorded = true;
       sendMessage({ type: 'RECORD_USAGE', stationId: station.id }).catch(() => {});
     }
-  });
-  audio.addEventListener('pause', () => {
-    if (audio) {
-      stopAudio();
+  };
+  el.onerror = () => {
+    if (audio !== el) {
+      return;
     }
-  });
-  audio.addEventListener('error', () => {
     status = 'error';
     renderPlaybackState();
-  });
+  };
 
-  audio.play().catch((error) => {
+  el.play().catch((error) => {
+    if (audio !== el) {
+      return;
+    }
     // A fresh pop-out window may block autoplay (no user gesture yet): don't
     // show a stream error, just return to a clickable state.
     if (error && error.name === 'NotAllowedError') {

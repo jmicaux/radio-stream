@@ -65,6 +65,9 @@ function stopAudio() {
   stopHeartbeat();
   stoppedAudio.pause();
   stoppedAudio.removeAttribute('src');
+  // load() runs the resource-reset algorithm, aborting the ongoing download;
+  // without it the element keeps buffering after "stop".
+  stoppedAudio.load();
 }
 
 function playStation(stationId, streamUrl, token) {

@@ -629,6 +629,7 @@ function stopLocalStream() {
 
     stoppedAudio.pause();
     stoppedAudio.removeAttribute('src');
+    stoppedAudio.load();
   }
 
   status = 'stopped';

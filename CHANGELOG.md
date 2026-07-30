@@ -4,6 +4,19 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.1] — 2026-07-30
+
+### Fixed
+- Stopping a stream now actually aborts the network request. The `<audio>`
+  element was paused and its `src` removed but never `load()`-ed, so it kept
+  downloading in the background; replaying the same station stacked a new
+  connection each time. Added `load()` on stop/teardown (sidebar, offscreen,
+  background) and bound the audio event handlers to their specific element so a
+  superseded stream can no longer stack requests or drive the UI.
+
+### Changed
+- Pop-out and refresh icons now match the 3DS Web Factory Toolkit extension.
+
 ## [0.4.0] — 2026-07-30
 
 ### Added
