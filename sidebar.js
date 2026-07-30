@@ -30,6 +30,21 @@ function setStatus(message) {
   statusNode.textContent = message || '';
 }
 
+// Toolbar icon badge: an "ON" chip while a station plays. Playback happens
+// locally in the sidebar, so the badge is driven from here rather than the
+// background service worker.
+function setActionBadge(text, color) {
+  if (!api.action || typeof api.action.setBadgeText !== 'function') {
+    return;
+  }
+  try {
+    api.action.setBadgeText({ text: text });
+    api.action.setBadgeBackgroundColor({ color: color });
+  } catch (error) {
+    /* action badge API unavailable in this context */
+  }
+}
+
 function stopAudio() {
   if (audio) {
     audio.pause();
@@ -55,20 +70,24 @@ function renderPlaybackState() {
   stopButton.setAttribute('aria-disabled', String(!isActive));
 
   if (status === 'loading') {
+    setActionBadge('...', station ? station.color : '#737373');
     setStatus(station ? 'Connexion à ' + station.name + '...' : 'Connexion...');
     return;
   }
 
   if (status === 'playing') {
+    setActionBadge('ON', station ? station.color : '#2f6b2f');
     setStatus(station ? station.name : '');
     return;
   }
 
   if (status === 'error') {
+    setActionBadge('ERR', '#b3261e');
     setStatus('Flux indisponible.');
     return;
   }
 
+  setActionBadge('', '#737373');
   setStatus('');
 }
 

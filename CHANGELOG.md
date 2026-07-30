@@ -4,6 +4,17 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.3] — 2026-07-30
+
+### Fixed
+- The toolbar icon shows the `ON` badge again while a station is playing (and
+  `...` / `ERR` while connecting / on error). Playback moved into the sidebar,
+  which no longer notified the background, so the badge was never updated; it is
+  now driven directly from the sidebar.
+- The playing station is now clearly highlighted: a colored ring plus a play
+  badge (not color alone, per WCAG 1.4.1) and a bolder name, in addition to the
+  existing `aria-pressed` state.
+
 ## [0.3.2] — 2026-07-30
 
 ### Fixed

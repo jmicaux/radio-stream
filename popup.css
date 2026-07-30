@@ -98,8 +98,31 @@ body {
 }
 
 .station.is-active {
-  border-color: #d1d5db;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  border-color: var(--station-color, #151922);
+  box-shadow: 0 0 0 3px var(--station-color, #151922);
+}
+
+/* Non-color cue for the playing station (WCAG 1.4.1): a play badge appears in
+   addition to the colored ring. State is also exposed via aria-pressed. */
+.station.is-active::after {
+  content: "\25B6";
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--station-color, #151922);
+  color: var(--station-text, #ffffff);
+  font-size: 9px;
+  line-height: 1;
+}
+
+.station.is-active .name {
+  font-weight: 700;
 }
 
 .mark {
