@@ -3,7 +3,7 @@ const STATIONS = [
     id: 'franceinter',
     name: 'France Inter',
     mark: 'Inter',
-    streamUrl: 'https://direct.franceinter.fr/live/franceinter-midfi.mp3',
+    streamUrl: 'https://icecast.radiofrance.fr/franceinter-midfi.mp3',
     siteUrl: 'https://www.radiofrance.fr/franceinter',
     color: '#e31b23'
   },
@@ -19,7 +19,7 @@ const STATIONS = [
     id: 'franceinfo',
     name: 'franceinfo',
     mark: 'Info',
-    streamUrl: 'https://direct.franceinfo.fr/live/franceinfo-midfi.mp3',
+    streamUrl: 'https://icecast.radiofrance.fr/franceinfo-midfi.mp3',
     siteUrl: 'https://www.radiofrance.fr/franceinfo',
     color: '#f6c400',
     textColor: '#151922'
@@ -60,7 +60,7 @@ const STATIONS = [
     id: 'europe1',
     name: 'Europe 1',
     mark: 'E1',
-    streamUrl: 'https://stream.europe1.fr/europe1.mp3',
+    streamUrl: 'https://europe1.lmn.fm/europe1.mp3',
     siteUrl: 'https://www.europe1.fr/',
     color: '#103f8f'
   },
@@ -92,7 +92,7 @@ const STATIONS = [
     id: 'rfm',
     name: 'RFM',
     mark: 'RFM',
-    streamUrl: 'https://stream.rfm.fr/rfm.mp3',
+    streamUrl: 'https://rfm.lmn.fm/rfm.mp3',
     siteUrl: 'https://www.rfm.fr/',
     color: '#dc2626'
   },
@@ -190,7 +190,7 @@ const STATIONS = [
     id: 'chantefrance',
     name: 'Chante France',
     mark: 'CF',
-    streamUrl: 'http://stream.chantefrance.com/Chante_France',
+    streamUrl: 'https://chantefrance.ice.infomaniak.ch/chantefrance-128.mp3',
     siteUrl: 'https://www.chantefrance.com/',
     color: '#ef4444'
   },

@@ -4,6 +4,17 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.2] — 2026-07-30
+
+### Changed
+- Point 5 streams straight at their final host to drop a 302 redirect on every
+  play: France Inter and franceinfo → `icecast.radiofrance.fr`, Europe 1 →
+  `europe1.lmn.fm`, RFM → `rfm.lmn.fm`, Chante France → `chantefrance.ice.
+  infomaniak.ch` (also upgraded from HTTP to HTTPS). RTL/RTL2/Fun Radio and
+  Radio FG/RCI Guadeloupe keep their entry URLs (their redirect issues a
+  short-lived token / balanced host that can't be hardcoded).
+- Removed the now-dead host_permissions entries in both manifests.
+
 ## [0.4.1] — 2026-07-30
 
 ### Fixed

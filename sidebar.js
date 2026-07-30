@@ -29,6 +29,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.2', date: '2026-07-30', changes: ['Flux France Inter, franceinfo, Europe 1, RFM et Chante France pointés directement sur leur hôte final (une redirection en moins à chaque lecture ; Chante France passe en HTTPS).'] },
   { version: '0.4.1', date: '2026-07-30', changes: ['Correctif perf : l’arrêt coupe réellement le flux (fini le téléchargement en arrière-plan et les connexions qui s’empilaient à chaque relance).', 'Icônes « Détacher » et « Rafraîchir » alignées sur le toolkit.'] },
   { version: '0.4.0', date: '2026-07-30', changes: ['Nouveau bouton « Détacher » : ouvre le lecteur dans une fenêtre séparée pour continuer l’écoute même en fermant la sidebar (la station en cours est reprise).'] },
   { version: '0.3.10', date: '2026-07-30', changes: ['Bouton « Arrêter » plus lisible (icône + libellé, contraste renforcé) et contrastes de l’en-tête ajustés (accessibilité).'] },
