@@ -935,4 +935,16 @@ api.runtime.onMessage.addListener((message) => {
   return false;
 });
 
+// Forget the pop-out window once it is closed, so the next pop-out click opens a
+// fresh window instead of trying to focus a stale id.
+if (api.windows && api.windows.onRemoved) {
+  api.windows.onRemoved.addListener((windowId) => {
+    storageGet({ popoutWindowId: null }).then((stored) => {
+      if (stored.popoutWindowId === windowId) {
+        storageSet({ popoutWindowId: null });
+      }
+    }).catch(() => {});
+  });
+}
+
 ensurePlaybackHeartbeatWatchdog();

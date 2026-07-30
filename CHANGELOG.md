@@ -4,6 +4,17 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.3] — 2026-07-30
+
+### Fixed
+- The pop-out button no longer stacks windows. It remembers the detached
+  window's id (persisted, so it survives reopening the sidebar) and, on a second
+  click, focuses the existing window instead of creating a new one; the id is
+  cleared when that window is closed.
+- The detached window is now fully resizable: its content is fluid (fills the
+  window and the station grid adds/removes columns) instead of being capped at a
+  fixed width.
+
 ## [0.4.2] — 2026-07-30
 
 ### Changed

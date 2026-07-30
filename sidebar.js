@@ -29,6 +29,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.3', date: '2026-07-30', changes: ['Le bouton « Détacher » ne crée plus de doublons : s’il existe déjà une fenêtre, un nouveau clic la ramène au premier plan.', 'La fenêtre détachée est entièrement redimensionnable : le contenu remplit toute la fenêtre et la grille ajuste ses colonnes.'] },
   { version: '0.4.2', date: '2026-07-30', changes: ['Flux France Inter, franceinfo, Europe 1, RFM et Chante France pointés directement sur leur hôte final (une redirection en moins à chaque lecture ; Chante France passe en HTTPS).'] },
   { version: '0.4.1', date: '2026-07-30', changes: ['Correctif perf : l’arrêt coupe réellement le flux (fini le téléchargement en arrière-plan et les connexions qui s’empilaient à chaque relance).', 'Icônes « Détacher » et « Rafraîchir » alignées sur le toolkit.'] },
   { version: '0.4.0', date: '2026-07-30', changes: ['Nouveau bouton « Détacher » : ouvre le lecteur dans une fenêtre séparée pour continuer l’écoute même en fermant la sidebar (la station en cours est reprise).'] },
@@ -289,12 +290,12 @@ refreshButton.addEventListener('click', refreshStations);
 // Pop-out: open the sidebar content in a detached window so the user can close
 // the sidebar and keep listening. The current station is handed off via the URL
 // and the sidebar's own audio is stopped to avoid playing twice.
-function openPopout() {
+function createPopoutWindow() {
   const active = (status === 'playing' || status === 'loading') && currentStationId;
   const handoff = active ? '&station=' + encodeURIComponent(currentStationId) : '';
   const url = api.runtime.getURL('sidebar.html') + '?mode=popout' + handoff;
 
-  storageGetLocal('popoutBounds')
+  return storageGetLocal('popoutBounds')
     .then((result) => (result && result.popoutBounds) || {})
     .catch(() => ({}))
     .then((bounds) => {
@@ -303,9 +304,32 @@ function openPopout() {
       if (typeof bounds.top === 'number') opts.top = bounds.top;
       return api.windows.create(opts);
     })
-    .then(() => {
+    .then((win) => {
+      // Remember the window so a second click focuses it instead of stacking a
+      // new one; persisted so it survives the sidebar being reopened.
+      if (win && typeof win.id === 'number') {
+        storageSetLocal({ popoutWindowId: win.id });
+      }
       // Hand playback over to the detached window.
       stopAudio();
+    });
+}
+
+function openPopout() {
+  storageGetLocal('popoutWindowId')
+    .then((result) => (result && typeof result.popoutWindowId === 'number') ? result.popoutWindowId : null)
+    .catch(() => null)
+    .then((existingId) => {
+      if (existingId === null || !api.windows || typeof api.windows.update !== 'function') {
+        return false;
+      }
+      // Bring the existing pop-out to the front; rejects if it was closed.
+      return api.windows.update(existingId, { focused: true }).then(() => true, () => false);
+    })
+    .then((focused) => {
+      if (!focused) {
+        return createPopoutWindow();
+      }
     })
     .catch(() => {});
 }
