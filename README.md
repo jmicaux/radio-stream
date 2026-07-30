@@ -4,7 +4,7 @@ Browser extension to play popular French live radio streams from the browser sid
 Chrome / Chromium and Firefox use the browser sidebar so playback remains integrated and
 stoppable without focusing a hidden player tab.
 
-[![CI](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml/badge.svg)](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.3.10-blue) ![vanilla](https://img.shields.io/badge/stack-vanilla_JS-f7df1e) ![no build](https://img.shields.io/badge/build-none-brightgreen) ![manifest](https://img.shields.io/badge/manifest-v3-8b5cf6) ![browsers](https://img.shields.io/badge/browsers-Chrome_+_Firefox-3b82f6)
+[![CI](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml/badge.svg)](https://github.com/jmicaux/radio-stream/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.4.0-blue) ![vanilla](https://img.shields.io/badge/stack-vanilla_JS-f7df1e) ![no build](https://img.shields.io/badge/build-none-brightgreen) ![manifest](https://img.shields.io/badge/manifest-v3-8b5cf6) ![browsers](https://img.shields.io/badge/browsers-Chrome_+_Firefox-3b82f6)
 
 **🔗 Live preview: [jmicaux.github.io/radio-stream](https://jmicaux.github.io/radio-stream/)**
 
@@ -22,6 +22,8 @@ If you enjoy this extension, you can support it:
   opens the station website in a new tab.
 - **Usage-based ordering** — stations are sorted locally (saved with `storage.local`): the
   radios you play most appear first, with ties resolved by most recent use, then ACPM rank.
+- **Pop-out window** — detach the player into its own window to keep listening after closing
+  the sidebar; the current station is handed off and the window remembers its size/position.
 
 ### Supported stations
 
@@ -60,8 +62,8 @@ If you enjoy this extension, you can support it:
 
 Grab the latest packaged build from the [releases page](https://github.com/jmicaux/radio-stream/releases/latest):
 
-- **Chrome / Chromium:** [radio-stream-extension-chrome.zip](https://github.com/jmicaux/radio-stream/releases/download/v0.3.10/radio-stream-extension-chrome.zip)
-- **Firefox:** [radio-stream-firefox-v0.3.10.xpi](https://github.com/jmicaux/radio-stream/releases/download/v0.3.10/radio-stream-firefox-v0.3.10.xpi) — or the [.zip variant](https://github.com/jmicaux/radio-stream/releases/download/v0.3.10/radio-stream-firefox-v0.3.10.zip) if your browser tries to install the `.xpi` directly instead of downloading it.
+- **Chrome / Chromium:** [radio-stream-extension-chrome.zip](https://github.com/jmicaux/radio-stream/releases/download/v0.4.0/radio-stream-extension-chrome.zip)
+- **Firefox:** [radio-stream-firefox-v0.4.0.xpi](https://github.com/jmicaux/radio-stream/releases/download/v0.4.0/radio-stream-firefox-v0.4.0.xpi) — or the [.zip variant](https://github.com/jmicaux/radio-stream/releases/download/v0.4.0/radio-stream-firefox-v0.4.0.zip) if your browser tries to install the `.xpi` directly instead of downloading it.
 
 ## Install & usage
 
@@ -70,7 +72,7 @@ Grab the latest packaged build from the [releases page](https://github.com/jmica
 1. Open `about:debugging#/runtime/this-firefox`.
 2. Click `Load Temporary Add-on...`.
 3. For source testing, select `manifest.firefox.json` from this project folder.
-4. For packaged testing, use `dist/v0.3.10/firefox/radio-stream-extension-firefox.zip`.
+4. For packaged testing, use `dist/v0.4.0/firefox/radio-stream-extension-firefox.zip`.
 
 The Firefox add-on is distributed through [addons.mozilla.org](https://addons.mozilla.org/) (AMO), which handles updates.
 
@@ -80,9 +82,9 @@ The Firefox add-on is distributed through [addons.mozilla.org](https://addons.mo
 2. Enable `Developer mode`.
 3. Click `Load unpacked`.
 4. Select this project folder.
-5. For packaged testing, use `dist/v0.3.10/chrome/radio-stream-extension-chrome.zip`.
+5. For packaged testing, use `dist/v0.4.0/chrome/radio-stream-extension-chrome.zip`.
 
-Chrome release artifacts are mirrored in `releases/v0.3.10/chrome/` for symmetry with Firefox.
+Chrome release artifacts are mirrored in `releases/v0.4.0/chrome/` for symmetry with Firefox.
 
 ## Project structure
 

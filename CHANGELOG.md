@@ -4,6 +4,16 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — 2026-07-30
+
+### Added
+- Pop-out button that opens the player in a detached window (`windows.create`,
+  `type: "popup"`), so you can close the sidebar and keep listening. The current
+  station is handed off through the URL and resumes in the new window (with a
+  graceful fallback when the browser blocks autoplay — no misleading error), and
+  the window remembers its size and position. The button is hidden inside the
+  detached window itself.
+
 ## [0.3.10] — 2026-07-30
 
 ### Fixed

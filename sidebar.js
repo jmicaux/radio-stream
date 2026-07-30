@@ -4,13 +4,32 @@ const stopButton = document.getElementById('stop');
 const statusNode = document.getElementById('status');
 const nowplayingNode = document.getElementById('nowplaying');
 const refreshButton = document.getElementById('refresh');
+const popoutButton = document.getElementById('popout');
 const versionNode = document.getElementById('version');
+
+const params = new URLSearchParams(window.location.search);
+const isPopout = params.get('mode') === 'popout';
+
+function storageGetLocal(keys) {
+  if (typeof browser !== 'undefined') {
+    return browser.storage.local.get(keys);
+  }
+  return new Promise((resolve) => chrome.storage.local.get(keys, resolve));
+}
+
+function storageSetLocal(values) {
+  if (typeof browser !== 'undefined') {
+    return browser.storage.local.set(values);
+  }
+  return new Promise((resolve) => chrome.storage.local.set(values, resolve));
+}
 const changelogOverlay = document.getElementById('changelog');
 const changelogBody = document.getElementById('changelog-body');
 const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.0', date: '2026-07-30', changes: ['Nouveau bouton « Détacher » : ouvre le lecteur dans une fenêtre séparée pour continuer l’écoute même en fermant la sidebar (la station en cours est reprise).'] },
   { version: '0.3.10', date: '2026-07-30', changes: ['Bouton « Arrêter » plus lisible (icône + libellé, contraste renforcé) et contrastes de l’en-tête ajustés (accessibilité).'] },
   { version: '0.3.9', date: '2026-07-30', changes: ['Haut de la sidebar optimisé : titre en double retiré, et le bouton d’arrêt n’apparaît plus que pendant la lecture (barre « en lecture » compacte).'] },
   { version: '0.3.8', date: '2026-07-30', changes: ['En-tête épuré : titre, description et version regroupés sur une ligne.'] },
@@ -155,7 +174,13 @@ function playStation(station) {
     renderPlaybackState();
   });
 
-  audio.play().catch(() => {
+  audio.play().catch((error) => {
+    // A fresh pop-out window may block autoplay (no user gesture yet): don't
+    // show a stream error, just return to a clickable state.
+    if (error && error.name === 'NotAllowedError') {
+      stopAudio();
+      return;
+    }
     status = 'error';
     renderPlaybackState();
   });
@@ -234,6 +259,54 @@ function refreshStations() {
 }
 
 refreshButton.addEventListener('click', refreshStations);
+
+// Pop-out: open the sidebar content in a detached window so the user can close
+// the sidebar and keep listening. The current station is handed off via the URL
+// and the sidebar's own audio is stopped to avoid playing twice.
+function openPopout() {
+  const active = (status === 'playing' || status === 'loading') && currentStationId;
+  const handoff = active ? '&station=' + encodeURIComponent(currentStationId) : '';
+  const url = api.runtime.getURL('sidebar.html') + '?mode=popout' + handoff;
+
+  storageGetLocal('popoutBounds')
+    .then((result) => (result && result.popoutBounds) || {})
+    .catch(() => ({}))
+    .then((bounds) => {
+      const opts = { url: url, type: 'popup', width: bounds.width || 380, height: bounds.height || 640 };
+      if (typeof bounds.left === 'number') opts.left = bounds.left;
+      if (typeof bounds.top === 'number') opts.top = bounds.top;
+      return api.windows.create(opts);
+    })
+    .then(() => {
+      // Hand playback over to the detached window.
+      stopAudio();
+    })
+    .catch(() => {});
+}
+
+popoutButton.addEventListener('click', openPopout);
+
+if (isPopout) {
+  document.documentElement.classList.add('popout');
+  // No point popping out an already-detached window.
+  popoutButton.hidden = true;
+
+  // Remember the window size/position (debounced) to restore it next time.
+  let boundsTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(boundsTimer);
+    boundsTimer = setTimeout(() => {
+      storageSetLocal({
+        popoutBounds: {
+          width: window.outerWidth,
+          height: window.outerHeight,
+          left: window.screenX,
+          top: window.screenY
+        }
+      });
+    }, 600);
+  });
+}
 
 if (versionNode && api.runtime && typeof api.runtime.getManifest === 'function') {
   versionNode.textContent = 'v' + api.runtime.getManifest().version;
@@ -316,4 +389,12 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
-refreshStations();
+refreshStations().then(() => {
+  if (isPopout) {
+    const wanted = params.get('station');
+    const station = wanted && stations.find((item) => item.id === wanted);
+    if (station) {
+      playStation(station);
+    }
+  }
+});
