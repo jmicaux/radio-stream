@@ -4,6 +4,13 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.7] — 2026-07-30
+
+### Added
+- The version number moved into the sidebar header and is now a button that
+  opens an accessible changelog dialog (SemVer entries, newest first; closes on
+  Escape, backdrop click, or the close button).
+
 ## [0.3.6] — 2026-07-30
 
 ### Fixed

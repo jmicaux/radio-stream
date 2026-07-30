@@ -4,6 +4,21 @@ const stopButton = document.getElementById('stop');
 const statusNode = document.getElementById('status');
 const refreshButton = document.getElementById('refresh');
 const versionNode = document.getElementById('version');
+const changelogOverlay = document.getElementById('changelog');
+const changelogBody = document.getElementById('changelog-body');
+const changelogClose = document.getElementById('changelog-close');
+
+// Changelog shown when the version badge is clicked (newest first, SemVer).
+const CHANGELOG = [
+  { version: '0.3.7', date: '2026-07-30', changes: ['Numéro de version déplacé dans l’en-tête, cliquable pour afficher les nouveautés.'] },
+  { version: '0.3.6', date: '2026-07-30', changes: ['Classement par usage rétabli : les radios les plus écoutées remontent en tête.'] },
+  { version: '0.3.5', date: '2026-07-30', changes: ['Bouton rafraîchir dans la barre d’outils.', 'Version affichée lue depuis le manifest.'] },
+  { version: '0.3.4', date: '2026-07-30', changes: ['Manifest Firefox conforme à la validation Mozilla (AMO).'] },
+  { version: '0.3.3', date: '2026-07-30', changes: ['Badge « ON » sur l’icône pendant la lecture.', 'Station en cours de lecture bien plus visible.'] },
+  { version: '0.3.2', date: '2026-07-30', changes: ['Lien « Site » de nouveau visible sous chaque station.'] },
+  { version: '0.3.1', date: '2026-07-30', changes: ['Correction de 4 flux : RTL, RTL2, Fun Radio, RFM.'] },
+  { version: '0.3.0', date: '2026-07-26', changes: ['Lecture depuis la sidebar avec surveillance du flux.'] }
+];
 
 let audio = null;
 let stations = [];
@@ -214,5 +229,82 @@ refreshButton.addEventListener('click', refreshStations);
 if (versionNode && api.runtime && typeof api.runtime.getManifest === 'function') {
   versionNode.textContent = 'v' + api.runtime.getManifest().version;
 }
+
+function buildChangelog() {
+  const fragment = document.createDocumentFragment();
+
+  CHANGELOG.forEach((entry) => {
+    const item = document.createElement('section');
+    item.className = 'changelog-entry';
+
+    const head = document.createElement('div');
+    head.className = 'changelog-entry-head';
+
+    const version = document.createElement('span');
+    version.className = 'changelog-version';
+    version.textContent = 'v' + entry.version;
+
+    const date = document.createElement('span');
+    date.className = 'changelog-date';
+    date.textContent = entry.date;
+
+    head.append(version, date);
+
+    const list = document.createElement('ul');
+    list.className = 'changelog-list';
+    entry.changes.forEach((change) => {
+      const line = document.createElement('li');
+      line.textContent = change;
+      list.append(line);
+    });
+
+    item.append(head, list);
+    fragment.append(item);
+  });
+
+  changelogBody.textContent = '';
+  changelogBody.append(fragment);
+}
+
+function openChangelog() {
+  if (!changelogBody.childNodes.length) {
+    buildChangelog();
+  }
+  changelogOverlay.hidden = false;
+  versionNode.setAttribute('aria-expanded', 'true');
+  changelogClose.focus();
+}
+
+function closeChangelog() {
+  if (changelogOverlay.hidden) {
+    return;
+  }
+  changelogOverlay.hidden = true;
+  versionNode.setAttribute('aria-expanded', 'false');
+  versionNode.focus();
+}
+
+versionNode.addEventListener('click', openChangelog);
+changelogClose.addEventListener('click', closeChangelog);
+
+// Close on backdrop click (but not when clicking inside the dialog).
+changelogOverlay.addEventListener('click', (event) => {
+  if (event.target === changelogOverlay) {
+    closeChangelog();
+  }
+});
+
+// Escape closes; Tab is trapped on the close button (only focusable control).
+document.addEventListener('keydown', (event) => {
+  if (changelogOverlay.hidden) {
+    return;
+  }
+  if (event.key === 'Escape') {
+    closeChangelog();
+  } else if (event.key === 'Tab') {
+    event.preventDefault();
+    changelogClose.focus();
+  }
+});
 
 refreshStations();
