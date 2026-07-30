@@ -82,10 +82,19 @@ body {
   background: #f9fafb;
 }
 
-/* Idle: keep the reserved space but render nothing (and drop it from the tab
-   order) until a station is loading/playing/errored. */
+/* Idle: keep the reserved space and show a discreet empty state (no stop
+   control) so the zone never looks blank and the tiles never move. */
 .nowplaying[data-state="stopped"] {
-  visibility: hidden;
+  background: transparent;
+  border-color: #eef0f2;
+}
+
+.nowplaying[data-state="stopped"] .np-status {
+  color: #6b7280;
+}
+
+.nowplaying[data-state="stopped"] .np-stop {
+  display: none;
 }
 
 .np-dot {

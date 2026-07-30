@@ -29,6 +29,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.6', date: '2026-07-30', changes: ['La zone « en lecture » affiche un état par défaut discret (« Aucune radio en lecture ») au lieu d’un espace vide.'] },
   { version: '0.4.5', date: '2026-07-30', changes: ['Plus de saut de mise en page (CLS) au lancement d’une radio : la zone « en lecture » est désormais réservée en permanence, les tuiles ne bougent plus.'] },
   { version: '0.4.4', date: '2026-07-30', changes: ['Le bouton « Rafraîchir » a maintenant un effet visible : il reconnecte le flux en cours (utile si le son se fige), re-trie la liste par écoutes et l’icône tourne le temps de l’opération.'] },
   { version: '0.4.3', date: '2026-07-30', changes: ['Le bouton « Détacher » ne crée plus de doublons : s’il existe déjà une fenêtre, un nouveau clic la ramène au premier plan.', 'La fenêtre détachée est entièrement redimensionnable : le contenu remplit toute la fenêtre et la grille ajuste ses colonnes.'] },
@@ -129,7 +130,7 @@ function renderPlaybackState() {
   });
 
   // The "now playing" bar keeps its reserved height at all times (no layout
-  // shift); the "stopped" state just renders it invisible via CSS.
+  // shift); the "stopped" state shows a discreet empty label via CSS.
   nowplayingNode.setAttribute('data-state', status);
 
   if (status === 'loading') {
@@ -151,7 +152,7 @@ function renderPlaybackState() {
   }
 
   setActionBadge('', '#737373');
-  setStatus('');
+  setStatus('Aucune radio en lecture');
 }
 
 function playStation(station) {
