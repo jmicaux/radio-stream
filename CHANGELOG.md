@@ -4,6 +4,13 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.8] — 2026-07-30
+
+### Changed
+- Sidebar header tidied up to match the house style: app name, a short tagline
+  and the (clickable) version now sit on a single line, with the version kept
+  discreet at the end instead of on its own row.
+
 ## [0.3.7] — 2026-07-30
 
 ### Added

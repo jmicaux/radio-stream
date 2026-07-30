@@ -10,6 +10,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.3.8', date: '2026-07-30', changes: ['En-tête épuré : titre, description et version regroupés sur une ligne.'] },
   { version: '0.3.7', date: '2026-07-30', changes: ['Numéro de version déplacé dans l’en-tête, cliquable pour afficher les nouveautés.'] },
   { version: '0.3.6', date: '2026-07-30', changes: ['Classement par usage rétabli : les radios les plus écoutées remontent en tête.'] },
   { version: '0.3.5', date: '2026-07-30', changes: ['Bouton rafraîchir dans la barre d’outils.', 'Version affichée lue depuis le manifest.'] },
