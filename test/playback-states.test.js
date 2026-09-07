@@ -10,7 +10,7 @@ const cases = JSON.parse(
 );
 
 test('the case table is not empty', () => {
-  assert.ok(cases.length >= 16);
+  assert.ok(cases.length >= 18);
 });
 
 for (const item of cases) {

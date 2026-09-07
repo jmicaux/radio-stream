@@ -5,6 +5,8 @@
   { "from": "connecting", "event": "fail",      "to": "error",      "why": "the stream never started" },
   { "from": "connecting", "event": "stop",      "to": "stopped",    "why": "the user cancelled before it started" },
   { "from": "connecting", "event": "play",      "to": "connecting", "why": "tapping another station supersedes the connection" },
+  { "from": "connecting", "event": "interrupt", "to": "stopped",    "why": "an interruption mid-connect abandons the attempt" },
+  { "from": "connecting", "event": "routeLost", "to": "stopped",    "why": "headphones unplugged mid-connect abandons the attempt" },
   { "from": "playing",    "event": "stop",      "to": "stopped",    "why": "the user stopped it" },
   { "from": "playing",    "event": "fail",      "to": "error",      "why": "the stream dropped" },
   { "from": "playing",    "event": "play",      "to": "connecting", "why": "switching station reconnects" },

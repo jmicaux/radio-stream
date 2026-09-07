@@ -12,7 +12,7 @@
 
   const TRANSITIONS = {
     stopped: { play: 'connecting', resume: 'connecting', stop: 'stopped', connected: 'stopped', fail: 'stopped' },
-    connecting: { connected: 'playing', fail: 'error', stop: 'stopped', play: 'connecting' },
+    connecting: { connected: 'playing', fail: 'error', stop: 'stopped', play: 'connecting', interrupt: 'stopped', routeLost: 'stopped' },
     playing: { stop: 'stopped', fail: 'error', play: 'connecting', interrupt: 'stopped', routeLost: 'stopped' },
     error: { play: 'connecting', stop: 'stopped' }
   };
