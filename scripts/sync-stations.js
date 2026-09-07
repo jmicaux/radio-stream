@@ -65,6 +65,10 @@ function sync() {
     fs.writeFileSync(full, replaceBlock(fs.readFileSync(full, 'utf8'), render(stations)));
     console.log('synced', file);
   }
+  fs.copyFileSync(path.join(root, 'shared/stations.json'), path.join(root, 'ios/www/stations.json'));
+  fs.copyFileSync(path.join(root, 'shared/ordering.js'), path.join(root, 'ios/www/ordering.js'));
+  fs.copyFileSync(path.join(root, 'shared/playback-machine.js'), path.join(root, 'ios/www/playback-machine.js'));
+  console.log('synced ios/www');
 }
 
 module.exports = { renderExpanded, renderCompact, replaceBlock, sync };

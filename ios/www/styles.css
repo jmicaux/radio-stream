@@ -1,0 +1,35 @@
+:root { color-scheme: dark light; font-family: -apple-system, system-ui, sans-serif; }
+body {
+  margin: 0;
+  padding: calc(env(safe-area-inset-top) + 1rem) 1rem calc(env(safe-area-inset-bottom) + 1rem);
+  background: #0b0d12;
+  color: #f4f5f7;
+}
+h1 { font-size: 1.25rem; margin: 0 0 1rem; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.75rem;
+}
+.tile {
+  min-height: 5.5rem;
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  display: grid;
+  align-content: space-between;
+  cursor: pointer;
+}
+.tile:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.mark { font-size: 1.5rem; font-weight: 700; }
+.name { font-size: 0.875rem; opacity: 0.9; }
+.status { font-size: 0.75rem; min-height: 1rem; opacity: 0.85; }
+.tile[data-state="playing"] { box-shadow: inset 0 0 0 3px #fff; }
+.tile[data-state="connecting"] { opacity: 0.75; }
+.tile[data-state="error"] { opacity: 0.55; }
+@media (prefers-reduced-motion: no-preference) {
+  .tile { transition: opacity 150ms ease, box-shadow 150ms ease; }
+}
