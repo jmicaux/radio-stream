@@ -32,6 +32,9 @@ function renderCompact(stations) {
 // containing `[` or `]`) — safe for today's data, but a latent limitation.
 function replaceBlock(source, block) {
   const start = source.indexOf('const STATIONS = [');
+  if (start === -1) {
+    throw new Error('no `const STATIONS = [` block found');
+  }
   const open = source.indexOf('[', start);
   let depth = 0;
   for (let i = open; i < source.length; i += 1) {
@@ -39,7 +42,15 @@ function replaceBlock(source, block) {
     if (source[i] === ']') {
       depth -= 1;
       if (depth === 0) {
-        const end = source.indexOf('\n', source.indexOf(';', i)) + 1;
+        const semi = source.indexOf(';', i);
+        if (semi === -1) {
+          throw new Error('no `;` found after STATIONS array closing bracket');
+        }
+        const newline = source.indexOf('\n', semi);
+        if (newline === -1) {
+          throw new Error('no trailing newline found after `const STATIONS = [...];` statement');
+        }
+        const end = newline + 1;
         return source.slice(0, start) + block + source.slice(end);
       }
     }
