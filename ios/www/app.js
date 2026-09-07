@@ -61,14 +61,22 @@ function render() {
 
 let counted = null;
 
-async function onStateChange(next) {
+async function onStateChange(next, { count = true } = {}) {
   current = { state: next.state, stationId: next.stationId };
   render();
 
-  // Count a play only once it is actually playing, matching the extension.
-  if (next.state === 'playing' && counted !== next.stationId) {
+  // Count a play only for a transition into playing that this JS context
+  // actually observed. A getState() sync on relaunch or foreground return
+  // can report 'playing' for something native already started (or kept
+  // playing through a WebView the OS discarded under memory pressure) —
+  // that is a reconciliation, not an event, and must never be counted.
+  if (count && next.state === 'playing' && counted !== next.stationId) {
     counted = next.stationId;
     saveUsage(RadioOrdering.record(await loadUsage(), next.stationId, Date.now()));
+  } else if (next.state === 'playing') {
+    // Not counting, but keep the guard accurate so a later genuine event
+    // for this same station is not counted either.
+    counted = next.stationId;
   }
   if (next.state !== 'playing') {
     counted = null;
@@ -87,14 +95,14 @@ async function start() {
   }
 
   RadioBridge.onStateChange(onStateChange);
-  onStateChange(await RadioBridge.getState());
+  onStateChange(await RadioBridge.getState(), { count: false });
 
   // The WebView must realign on the native truth every time it comes back:
   // the lock screen, a call or a dropped network may have changed it.
   if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
     window.Capacitor.Plugins.App.addListener('appStateChange', async ({ isActive }) => {
       if (isActive) {
-        onStateChange(await RadioBridge.getState());
+        onStateChange(await RadioBridge.getState(), { count: false });
       }
     });
   }
