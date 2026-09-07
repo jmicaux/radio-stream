@@ -1,0 +1,18 @@
+[
+  { "from": "stopped",    "event": "play",      "to": "connecting", "why": "a tap starts a connection" },
+  { "from": "stopped",    "event": "stop",      "to": "stopped",    "why": "stopping when stopped is a no-op" },
+  { "from": "connecting", "event": "connected", "to": "playing",    "why": "the stream started" },
+  { "from": "connecting", "event": "fail",      "to": "error",      "why": "the stream never started" },
+  { "from": "connecting", "event": "stop",      "to": "stopped",    "why": "the user cancelled before it started" },
+  { "from": "connecting", "event": "play",      "to": "connecting", "why": "tapping another station supersedes the connection" },
+  { "from": "playing",    "event": "stop",      "to": "stopped",    "why": "the user stopped it" },
+  { "from": "playing",    "event": "fail",      "to": "error",      "why": "the stream dropped" },
+  { "from": "playing",    "event": "play",      "to": "connecting", "why": "switching station reconnects" },
+  { "from": "playing",    "event": "interrupt", "to": "stopped",    "why": "an incoming call took the audio session" },
+  { "from": "playing",    "event": "routeLost", "to": "stopped",    "why": "headphones were unplugged, iOS requires a pause" },
+  { "from": "error",      "event": "play",      "to": "connecting", "why": "the tile stays tappable after an error" },
+  { "from": "error",      "event": "stop",      "to": "stopped",    "why": "clearing an error returns to rest" },
+  { "from": "stopped",    "event": "resume",    "to": "connecting", "why": "the system allowed resuming after an interruption" },
+  { "from": "stopped",    "event": "connected", "to": "stopped",    "why": "a superseded connection must never revive a stopped player" },
+  { "from": "stopped",    "event": "fail",      "to": "stopped",    "why": "a superseded failure must not surface an error" }
+]
