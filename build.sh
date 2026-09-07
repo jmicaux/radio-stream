@@ -33,8 +33,9 @@ mkdir -p "$DIST/chrome" "$DIST/firefox" "$REL/chrome" "$REL/firefox"
 
 # ---------- Chrome ----------
 CHROME_SRC="$WORK/chrome"
-mkdir -p "$CHROME_SRC"
+mkdir -p "$CHROME_SRC/shared"
 cp "${FILES[@]}" "$CHROME_SRC/"
+cp shared/ordering.js "$CHROME_SRC/shared/"
 cp -r assets "$CHROME_SRC/"
 CHROME_ZIP="radio-stream-extension-chrome.zip"
 # manifest.json first, then the rest, so the archive layout is deterministic.
@@ -44,9 +45,10 @@ cp "$CHROME_SRC/$CHROME_ZIP" "$REL/chrome/$CHROME_ZIP"
 
 # ---------- Firefox ----------
 FF_SRC="$WORK/ff"
-mkdir -p "$FF_SRC"
+mkdir -p "$FF_SRC/shared"
 cp manifest.firefox.json "$FF_SRC/manifest.json"
 cp "${FILES[@]:1}" "$FF_SRC/"   # skip manifest.json (Firefox uses its own)
+cp shared/ordering.js "$FF_SRC/shared/"
 cp -r assets "$FF_SRC/"
 npx --yes web-ext@latest build --source-dir "$FF_SRC" --artifacts-dir "$WORK/ff-out" --overwrite-dest >/dev/null
 BUILT_XPI="$(ls "$WORK/ff-out"/*.zip)"

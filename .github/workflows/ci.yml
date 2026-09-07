@@ -32,8 +32,9 @@ jobs:
 
       - name: web-ext lint (Firefox build)
         run: |
-          mkdir -p build/ff
+          mkdir -p build/ff/shared
           cp manifest.firefox.json build/ff/manifest.json
           cp background.js offscreen.html offscreen.js popup.css sidebar.html sidebar.js build/ff/
+          cp shared/ordering.js build/ff/shared/
           cp -r assets build/ff/
           npx --yes web-ext@latest lint --source-dir build/ff --self-hosted

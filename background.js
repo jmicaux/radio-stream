@@ -1,3 +1,9 @@
+// Loaded ahead of this file by manifest.firefox.json; imported here for the
+// Chrome service worker. RadioOrdering is the shared ordering logic.
+if (typeof RadioOrdering === 'undefined' && typeof importScripts === 'function') {
+  importScripts('shared/ordering.js');
+}
+
 const STATIONS = [
   {
     id: 'franceinter',
@@ -511,39 +517,13 @@ function loadUsage() {
   return storageGet({ [USAGE_KEY]: {} }).then((stored) => stored[USAGE_KEY] || {});
 }
 
-function stationRank(station) {
-  return STATIONS.findIndex((item) => item.id === station.id);
-}
-
 function sortStations(usage) {
-  return STATIONS.slice().sort((first, second) => {
-    const firstUsage = usage[first.id] || {};
-    const secondUsage = usage[second.id] || {};
-    const firstCount = firstUsage.count || 0;
-    const secondCount = secondUsage.count || 0;
-
-    if (firstCount !== secondCount) {
-      return secondCount - firstCount;
-    }
-
-    if ((firstUsage.lastPlayedAt || 0) !== (secondUsage.lastPlayedAt || 0)) {
-      return (secondUsage.lastPlayedAt || 0) - (firstUsage.lastPlayedAt || 0);
-    }
-
-    return stationRank(first) - stationRank(second);
-  });
+  return RadioOrdering.sort(STATIONS, usage);
 }
 
 function recordUsage(stationId) {
   return loadUsage().then((usage) => {
-    const previous = usage[stationId] || {};
-
-    usage[stationId] = {
-      count: (previous.count || 0) + 1,
-      lastPlayedAt: Date.now()
-    };
-
-    return storageSet({ [USAGE_KEY]: usage });
+    return storageSet({ [USAGE_KEY]: RadioOrdering.record(usage, stationId, Date.now()) });
   });
 }
 

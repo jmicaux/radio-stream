@@ -53,6 +53,7 @@
   },
   "background": {
     "scripts": [
+      "shared/ordering.js",
       "background.js"
     ]
   },
