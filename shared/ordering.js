@@ -2,10 +2,14 @@
 // storage access, no clock. Callers supply `usage` and, for record(), `now`.
 (function (root, factory) {
   const api = factory();
+  // Always assign the global: a service worker (no `module`) and a browser
+  // page with a hostile `module` shim (e.g. some WebView bundler runtimes)
+  // both need `root.RadioOrdering` to exist. Additionally assign
+  // `module.exports` when present, for Node's CommonJS `require()`. Neither
+  // assignment excludes the other.
+  root.RadioOrdering = api;
   if (typeof module === 'object' && module.exports) {
     module.exports = api;
-  } else {
-    root.RadioOrdering = api;
   }
 }(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
