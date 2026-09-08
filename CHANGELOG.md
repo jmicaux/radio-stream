@@ -4,6 +4,26 @@ All notable changes to Radio Stream are documented here.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.7] — 2026-09-08
+
+### Fixed
+- Two players could be audible at once. The sidebar and the detached window each
+  own their `<audio>` and nothing arbitrated between them, so starting a station
+  in the sidebar after detaching stacked the sounds, "Arrêter" only silenced the
+  local player, and the badge could clear while another window was still
+  playing. The contexts now elect a single playback owner by broadcasting every
+  start/stop over runtime messaging: any other context releases its audio and
+  mirrors the state, and a stop from one window stops the sound in the other.
+- Refreshing could cancel a stop. The refresh captured the current station
+  before its asynchronous state request and replayed it afterwards without
+  checking what happened in between, so clicking "Arrêter" (or picking another
+  station) while the request was in flight restarted the old stream. The replay
+  is now guarded by a playback generation counter and is skipped if the intent
+  changed.
+- A finished stream stayed shown as playing. The player handled `playing` and
+  `error` but not `ended` or `pause`, so a stream that ended without an error
+  left the UI and the badge on "ON". Both events now stop playback properly.
+
 ## [0.4.6] — 2026-07-30
 
 ### Changed

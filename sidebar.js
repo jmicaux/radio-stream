@@ -29,6 +29,7 @@ const changelogClose = document.getElementById('changelog-close');
 
 // Changelog shown when the version badge is clicked (newest first, SemVer).
 const CHANGELOG = [
+  { version: '0.4.7', date: '2026-09-08', changes: ['Fini les sons superposés : la sidebar et la fenêtre détachée ne peuvent plus jouer en même temps, et « Arrêter » coupe la radio où qu’elle joue.', 'Le bouton « Rafraîchir » ne relance plus une radio que vous venez d’arrêter (ou de changer) pendant le chargement.', 'Un flux qui se termine ou se coupe n’affiche plus « en lecture » : l’interface et le badge repassent à l’arrêt.'] },
   { version: '0.4.6', date: '2026-07-30', changes: ['La zone « en lecture » affiche un état par défaut discret (« Aucune radio en lecture ») au lieu d’un espace vide.'] },
   { version: '0.4.5', date: '2026-07-30', changes: ['Plus de saut de mise en page (CLS) au lancement d’une radio : la zone « en lecture » est désormais réservée en permanence, les tuiles ne bougent plus.'] },
   { version: '0.4.4', date: '2026-07-30', changes: ['Le bouton « Rafraîchir » a maintenant un effet visible : il reconnecte le flux en cours (utile si le son se fige), re-trie la liste par écoutes et l’icône tourne le temps de l’opération.'] },
@@ -53,6 +54,61 @@ let audio = null;
 let stations = [];
 let currentStationId = null;
 let status = 'stopped';
+
+// Playback happens locally in each context: the sidebar and the detached
+// window each own an <audio>. Nothing in the browser arbitrates between them,
+// so the contexts elect a single owner by broadcasting every playback change
+// over runtime messaging. Broadcasts only reach *live* contexts (unlike a
+// record in storage, which can outlive the window that wrote it), so a closed
+// pop-out can never leave a phantom "playing" state behind.
+const CONTEXT_ID = 'ctx-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 10);
+let playbackOwner = null;
+
+// Bumped by every change of playback intent (local or remote). Async work that
+// wants to resume playback captures it first and gives up if it moved, so a
+// slow request can never resurrect a stream the user has since stopped.
+let playbackGeneration = 0;
+
+function announcePlayback() {
+  sendMessage({
+    type: 'SIDEBAR_PLAYBACK',
+    ownerId: CONTEXT_ID,
+    status: status,
+    stationId: currentStationId
+  }).catch(() => {});
+}
+
+// Another context took over (or stopped) playback: release our own audio so
+// only one stream is ever audible, and mirror its state so the tiles, the
+// status line and the badge stay truthful in every window.
+function adoptRemotePlayback(message) {
+  playbackGeneration += 1;
+  teardownAudio();
+
+  const stopped = !message.status || message.status === 'stopped';
+  playbackOwner = stopped ? null : message.ownerId;
+  status = stopped ? 'stopped' : message.status;
+  currentStationId = stopped ? null : (message.stationId || null);
+  renderPlaybackState();
+}
+
+if (api.runtime && api.runtime.onMessage) {
+  api.runtime.onMessage.addListener((message) => {
+    if (!message || message.ownerId === CONTEXT_ID) {
+      return;
+    }
+
+    if (message.type === 'SIDEBAR_PLAYBACK') {
+      adoptRemotePlayback(message);
+      return;
+    }
+
+    // A newly opened context asks who is playing; only the owner answers.
+    if (message.type === 'SIDEBAR_PLAYBACK_QUERY' && playbackOwner === CONTEXT_ID && status !== 'stopped') {
+      announcePlayback();
+    }
+  });
+}
 
 function sendMessage(message) {
   if (typeof browser !== 'undefined') {
@@ -103,6 +159,8 @@ function teardownAudio() {
   audio = null;
   el.onplaying = null;
   el.onerror = null;
+  el.onended = null;
+  el.onpause = null;
   try {
     el.pause();
   } catch (error) {
@@ -112,11 +170,17 @@ function teardownAudio() {
   el.load();
 }
 
+// Stopping is global, not local: whichever context holds the audio releases it
+// when the broadcast arrives, so "Arrêter" from the sidebar also silences the
+// detached window (and the other way round).
 function stopAudio() {
+  playbackGeneration += 1;
   teardownAudio();
   currentStationId = null;
   status = 'stopped';
+  playbackOwner = null;
   renderPlaybackState();
+  announcePlayback();
 }
 
 function renderPlaybackState() {
@@ -167,10 +231,15 @@ function playStation(station) {
 // Actually (re)connect a station's stream, bypassing the play/stop toggle so it
 // can also be used to reconnect the station that is already playing.
 function startPlayback(station) {
+  playbackGeneration += 1;
   teardownAudio();
   currentStationId = station.id;
   status = 'loading';
+  // Claim playback before the stream connects: the announcement makes any other
+  // window release its own audio right away, instead of overlapping with ours.
+  playbackOwner = CONTEXT_ID;
   renderPlaybackState();
+  announcePlayback();
 
   const el = new Audio(station.streamUrl);
   audio = el;
@@ -185,6 +254,7 @@ function startPlayback(station) {
     }
     status = 'playing';
     renderPlaybackState();
+    announcePlayback();
     // Count the play once it actually starts, so usage-based ordering reflects
     // real listening. The new order applies on the next refresh/reopen rather
     // than reshuffling tiles mid-playback.
@@ -199,6 +269,23 @@ function startPlayback(station) {
     }
     status = 'error';
     renderPlaybackState();
+    announcePlayback();
+  };
+  // A live stream that simply ends (server closed the connection, playlist ran
+  // out) fires `ended` — never `error` — and a `pause` we did not trigger means
+  // the element stopped on its own. Both leave the UI and the badge stuck on
+  // "ON" unless we treat them as a stop.
+  el.onended = () => {
+    if (audio !== el) {
+      return;
+    }
+    stopAudio();
+  };
+  el.onpause = () => {
+    if (audio !== el) {
+      return;
+    }
+    stopAudio();
   };
 
   el.play().catch((error) => {
@@ -278,14 +365,20 @@ function refreshStations() {
   refreshButton.classList.add('is-refreshing');
 
   // Reconnect the current stream too, so refresh also recovers a stalled feed.
-  const replayId = (status === 'playing' || status === 'loading') ? currentStationId : null;
+  const replayId = (status === 'playing' || status === 'loading') && playbackOwner === CONTEXT_ID
+    ? currentStationId
+    : null;
+  // GET_STATE is async: the user can stop, switch station or hand playback over
+  // to another window while it is in flight. Only replay if nothing changed the
+  // intent in the meantime, otherwise the refresh would undo their action.
+  const replayGeneration = playbackGeneration;
   // Keep the spinner visible long enough to read, even though GET_STATE is instant.
   const minSpin = new Promise((resolve) => setTimeout(resolve, 600));
 
   return sendMessage({ type: 'GET_STATE' })
     .then(renderStations)
     .then(() => {
-      if (replayId) {
+      if (replayId && playbackGeneration === replayGeneration) {
         const station = stations.find((item) => item.id === replayId);
         if (station) {
           startPlayback(station);
@@ -312,6 +405,11 @@ function createPopoutWindow() {
   const handoff = active ? '&station=' + encodeURIComponent(currentStationId) : '';
   const url = api.runtime.getURL('sidebar.html') + '?mode=popout' + handoff;
 
+  // Hand playback over *before* opening the window: releasing our audio after
+  // the new window has already connected would broadcast a stop that silences
+  // it. The station id travels in the URL, so nothing is lost.
+  stopAudio();
+
   return storageGetLocal('popoutBounds')
     .then((result) => (result && result.popoutBounds) || {})
     .catch(() => ({}))
@@ -327,8 +425,6 @@ function createPopoutWindow() {
       if (win && typeof win.id === 'number') {
         storageSetLocal({ popoutWindowId: win.id });
       }
-      // Hand playback over to the detached window.
-      stopAudio();
     });
 }
 
@@ -456,12 +552,29 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+// Closing the window that holds the audio must not leave the other contexts
+// showing a station that is no longer audible. Best effort: the broadcast is
+// sent while the page is still alive.
+window.addEventListener('pagehide', () => {
+  if (playbackOwner === CONTEXT_ID && status !== 'stopped') {
+    status = 'stopped';
+    currentStationId = null;
+    playbackOwner = null;
+    announcePlayback();
+  }
+});
+
 refreshStations().then(() => {
   if (isPopout) {
     const wanted = params.get('station');
     const station = wanted && stations.find((item) => item.id === wanted);
     if (station) {
       playStation(station);
+      return;
     }
   }
+
+  // Opened while another context is already playing: adopt its state instead of
+  // showing an idle UI (and a badge) that contradicts the sound being heard.
+  sendMessage({ type: 'SIDEBAR_PLAYBACK_QUERY', ownerId: CONTEXT_ID }).catch(() => {});
 });
